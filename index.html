@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collabera Email Signature Studio</title>
+    <meta name="description" content="Generate 100% Outlook & Gmail compliant, brand-aligned email signatures for Collabera LLC, Collabera GTC, and Collabera Digital.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="brand-logo">
+                <span class="logo-mark">C</span>
+                <span class="logo-text">Collabera <small>Signature Studio</small></span>
+            </div>
+            <div class="header-divider"></div>
+            <div class="entity-badge" id="active-entity-badge">
+                <span class="pulse-dot"></span>
+                <span id="badge-text">Collabera LLC</span>
+            </div>
+        </div>
+
+        <!-- Template Selector Tabs -->
+        <nav class="template-nav">
+            <span class="nav-label">Template:</span>
+            <div class="nav-tabs" id="template-tabs">
+                <!-- Dynamically populated -->
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="editor-container">
+        <!-- Left Panel: Live Interactive Preview -->
+        <section class="preview-panel">
+            <div class="panel-header">
+                <div class="header-title">
+                    <h2>Live Preview</h2>
+                    <span class="subtitle">Sandboxed Outlook & Gmail rendering engine</span>
+                </div>
+
+                <div class="preview-actions">
+                    <!-- View Mode Toggle -->
+                    <div class="view-toggle">
+                        <button id="view-desktop-btn" class="toggle-btn active" title="Desktop View">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            Desktop
+                        </button>
+                        <button id="view-mobile-btn" class="toggle-btn" title="Mobile View">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                            Mobile
+                        </button>
+                    </div>
+
+                    <button id="copy-btn" class="btn primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Copy Signature
+                    </button>
+
+                    <button id="download-btn" class="btn secondary" title="Download HTML file">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export HTML
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-canvas-wrapper" id="canvas-wrapper">
+                <div class="canvas-card" id="canvas-card">
+                    <iframe id="preview-frame" title="Email Signature Preview" sandbox="allow-same-origin allow-scripts"></iframe>
+                </div>
+            </div>
+
+            <div class="panel-footer-info">
+                <span>&check; 100% Inline CSS & Table Layout &bull; Tested on Outlook, Gmail, Apple Mail, & Mobile Clients</span>
+            </div>
+        </section>
+
+        <!-- Right Panel: Schema Form Controls -->
+        <section class="form-panel">
+            <div class="panel-header">
+                <div class="header-title">
+                    <h2>Customize Fields</h2>
+                    <span class="subtitle">Updates live in real time</span>
+                </div>
+
+                <!-- Brand Color Presets -->
+                <div class="color-presets" title="Quick Brand Colors">
+                    <button class="preset-pill" data-primary="#05262B" data-secondary="#50B1FB" style="background: linear-gradient(135deg, #05262B 50%, #50B1FB 50%);" title="Collabera Lake Blue"></button>
+                    <button class="preset-pill" data-primary="#05262B" data-secondary="#A98B64" style="background: linear-gradient(135deg, #05262B 50%, #A98B64 50%);" title="Collabera Gold"></button>
+                    <button class="preset-pill" data-primary="#0f172a" data-secondary="#2563eb" style="background: linear-gradient(135deg, #0f172a 50%, #2563eb 50%);" title="Modern Blue"></button>
+                    <button class="preset-pill" data-primary="#1e293b" data-secondary="#0284c7" style="background: linear-gradient(135deg, #1e293b 50%, #0284c7 50%);" title="Sky Corporate"></button>
+                </div>
+            </div>
+
+            <div class="form-content">
+                <form id="signature-form" autocomplete="off">
+                    <!-- Fields will be dynamically generated by schema -->
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <div class="toast-icon">&check;</div>
+        <div class="toast-message" id="toast-message">Signature copied to clipboard! Paste directly into Gmail/Outlook settings.</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="template.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
