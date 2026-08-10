@@ -19,10 +19,8 @@ const templates = [
                 default: "Collabera LLC",
                 group: "Branding & Entity" 
             },
-            { id: "logoUrl", label: "Collabera Logo Image URL", type: "image", default: "https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg", group: "Branding & Entity" },
             { id: "primaryColor", label: "Primary Color", type: "color", default: "#05262B", group: "Branding & Entity" },
-            { id: "secondaryColor", label: "Accent Gold Color", type: "color", default: "#AA9269", group: "Branding & Entity" },
-            { id: "showFeedback", label: "Show Feedback & Privacy Footer", type: "dropdown", options: ["Yes", "No"], default: "Yes", group: "Social & Legal" }
+            { id: "secondaryColor", label: "Accent Gold Color", type: "color", default: "#AA9269", group: "Branding & Entity" }
         ],
         html: `
 <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Red Hat Display', Arial, sans-serif; font-size: 16px; color: {{primaryColor}}; line-height: 1.4; width: 100%; max-width: 516px; text-align: left; background-color: #ffffff;">
@@ -79,7 +77,7 @@ const templates = [
             <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                     <td valign="middle">
-                        <img src="{{logoUrl}}" alt="Collabera Logo" width="230" height="33" style="display: block; width: 230px; height: 33px; border: 0; outline: none; text-decoration: none;" />
+                        <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg" alt="Collabera Logo" width="230" height="33" style="display: block; width: 230px; height: 33px; border: 0; outline: none; text-decoration: none;" />
                     </td>
                 </tr>
             </table>
@@ -98,7 +96,6 @@ const templates = [
     </tr>
 
     <!-- Footer Feedback & Privacy Text Box -->
-    {{#if showFeedback == 'Yes'}}
     <tr>
         <td>
             <div style="font-family: 'Red Hat Display', Arial, sans-serif; font-size: 12px; color: {{primaryColor}}; font-weight: 400; word-wrap: break-word; line-height: 1.6;">
@@ -118,7 +115,6 @@ const templates = [
             </div>
         </td>
     </tr>
-    {{/if}}
 </table>
 `
     },
@@ -143,7 +139,6 @@ const templates = [
                 default: "Collabera LLC",
                 group: "Branding & Entity" 
             },
-            { id: "logoUrl", label: "Collabera Logo URL", type: "image", default: "https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg", group: "Branding & Entity" },
             { id: "primaryColor", label: "Primary Dark Color", type: "color", default: "#0f172a", group: "Branding & Entity" },
             { id: "secondaryColor", label: "Accent Blue Color", type: "color", default: "#2563eb", group: "Branding & Entity" },
             { id: "linkedin", label: "LinkedIn URL", type: "text", default: "https://www.linkedin.com/company/collabera", group: "Social & Legal" }
@@ -156,7 +151,7 @@ const templates = [
             <table cellpadding="0" cellspacing="0" border="0" width="130">
                 <tr>
                     <td style="padding-bottom: 8px;">
-                        <img src="{{logoUrl}}" alt="Collabera Logo" width="130" style="display: block; width: 130px; max-width: 130px; height: auto; border: 0;" />
+                        <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg" alt="Collabera Logo" width="130" style="display: block; width: 130px; max-width: 130px; height: auto; border: 0;" />
                     </td>
                 </tr>
                 <tr>
@@ -238,12 +233,10 @@ const templates = [
                 group: "Branding & Entity" 
             },
             { id: "photo", label: "Headshot Photo URL", type: "image", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80", group: "Branding & Entity" },
-            { id: "logoUrl", label: "Collabera Logo URL", type: "image", default: "https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg", group: "Branding & Entity" },
             { id: "primaryColor", label: "Corporate Dark Color", type: "color", default: "#05262B", group: "Branding & Entity" },
             { id: "secondaryColor", label: "Lake Blue Accent", type: "color", default: "#50B1FB", group: "Branding & Entity" },
             { id: "accentGold", label: "Gold Accent", type: "color", default: "#A98B64", group: "Branding & Entity" },
-            { id: "linkedin", label: "LinkedIn Profile URL", type: "text", default: "https://www.linkedin.com/company/collabera", group: "Social & Legal" },
-            { id: "showDisclaimer", label: "Show Confidentiality Disclaimer", type: "dropdown", options: ["Yes", "No"], default: "Yes", group: "Social & Legal" }
+            { id: "linkedin", label: "LinkedIn Profile URL", type: "text", default: "https://www.linkedin.com/company/collabera", group: "Social & Legal" }
         ],
         html: `
 <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: {{primaryColor}}; line-height: 1.4; width: 100%; max-width: 580px; text-align: left;">
@@ -271,7 +264,7 @@ const templates = [
                     <td style="padding-bottom: 8px;">
                         <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; color: {{accentGold}}; letter-spacing: 0.5px;">{{title}}</span>
                         {{#if department != ''}}
-                        <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #64748b;"> &nbsp;|&nbsp; {{department}}</span>
+                        <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #64748b;"> &bull; {{department}}</span>
                         {{/if}}
                     </td>
                 </tr>
@@ -281,7 +274,7 @@ const templates = [
                     <td style="padding-bottom: 10px;">
                         <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #334155; line-height: 1.6;">
                             <tr>
-                                <td>
+                               <td>
                                     <strong style="color: {{primaryColor}};">M:</strong> {{mobile}}
                                     {{#if phone != ''}} &nbsp;&nbsp;|&nbsp;&nbsp; <strong style="color: {{primaryColor}};">O:</strong> {{phone}}{{/if}}
                                 </td>
@@ -309,7 +302,7 @@ const templates = [
                                     <table cellpadding="0" cellspacing="0" border="0">
                                         <tr>
                                             <td valign="middle" style="padding-right: 8px;">
-                                                <img src="{{logoUrl}}" alt="Collabera Logo" width="140" style="display: block; width: 140px; max-width: 140px; height: auto; border: 0;" />
+                                                <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg" alt="Collabera Logo" width="140" style="display: block; width: 140px; max-width: 140px; height: auto; border: 0;" />
                                             </td>
                                             <td valign="middle">
                                                 <span style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; color: {{secondaryColor}}; display: block; text-transform: uppercase; letter-spacing: 0.5px;">{{entity}}</span>
@@ -331,13 +324,11 @@ const templates = [
     </tr>
 
     <!-- Footer Legal Disclaimer -->
-    {{#if showDisclaimer == 'Yes'}}
     <tr>
         <td colspan="3" style="padding-top: 12px; font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #94a3b8; line-height: 1.4; border-top: 1px dashed #cbd5e1; margin-top: 10px;">
             CONFIDENTIALITY NOTICE: This message and any attachments are intended solely for {{name}} and {{entity}}. If received in error, please notify sender and destroy immediately.
         </td>
     </tr>
-    {{/if}}
 </table>
 `
     },
