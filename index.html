@@ -1,118 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collabera Email Signature Studio</title>
-    <meta name="description" content="Generate 100% Outlook & Gmail compliant, brand-aligned email signatures for Collabera LLC, Collabera GTC, and Collabera Digital.">
+    <meta name="description"
+        content="Generate 100% Outlook & Gmail compliant, brand-aligned email signatures for Collabera LLC, Collabera GTC, and Collabera Digital.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&family=Red+Hat+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
-    <!-- Top Navigation Header -->
-    <header class="app-header">
-        <div class="header-left">
-            <div class="brand-logo">
-                <span class="logo-mark">C</span>
-                <span class="logo-text">Collabera <small>Signature Studio</small></span>
-            </div>
-            <div class="header-divider"></div>
-            <div class="entity-badge" id="active-entity-badge">
-                <span class="pulse-dot"></span>
-                <span id="badge-text">Collabera LLC</span>
-            </div>
-        </div>
 
-        <!-- Template Selector Tabs -->
-        <nav class="template-nav">
-            <span class="nav-label">Template:</span>
-            <div class="nav-tabs" id="template-tabs">
-                <!-- Dynamically populated -->
-            </div>
-        </nav>
-    </header>
+    <!-- Main App Layout -->
+    <div class="app-layout">
 
-    <!-- Main Workspace -->
-    <main class="editor-container">
-        <!-- Left Panel: Live Interactive Preview -->
-        <section class="preview-panel">
-            <div class="panel-header">
-                <div class="header-title">
-                    <h2>Live Preview</h2>
-                    <span class="subtitle">Sandboxed Outlook & Gmail rendering engine</span>
+        <!-- Left Area: Navbar + Preview -->
+        <div class="main-area">
+
+            <!-- Top Navbar Bar -->
+            <div class="top-navbar">
+                <div class="navbar-brand">
+                    <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg"
+                        alt="Collabera" height="24" style="height: 24px; display: block;" />
+                    <span class="navbar-divider"></span>
+                    <span class="navbar-title">Signature Studio</span>
                 </div>
+                <div class="navbar-actions">
+                    <button id="copy-btn" class="btn-outline" title="Copy signature to clipboard">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy HTML
+                    </button>
+                    <button id="download-btn" class="btn-outline" title="Download HTML file">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Export
+                    </button>
+                </div>
+            </div>
 
-                <div class="preview-actions">
-                    <!-- View Mode Toggle -->
-                    <div class="view-toggle">
-                        <button id="view-desktop-btn" class="toggle-btn active" title="Desktop View">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                            Desktop
-                        </button>
-                        <button id="view-mobile-btn" class="toggle-btn" title="Mobile View">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                            Mobile
-                        </button>
+            <!-- Live Preview Canvas -->
+            <div class="preview-area">
+                <div class="preview-canvas">
+                    <iframe id="preview-frame" title="Email Signature Preview"></iframe>
+                </div>
+            </div>
+
+        </div><!-- /main-area -->
+
+        <!-- Right Side: Nav Panel -->
+        <aside class="side-nav">
+
+            <h1 class="side-nav-title">Craft Your Email Signature</h1>
+
+            <div class="accordion-stack" id="signature-form">
+
+                <!-- Section 01: Choose Email Platform -->
+                <div class="accordion-section" id="section-platform">
+                    <button class="accordion-header" data-target="panel-platform" aria-expanded="true">
+                        <div class="accordion-label">
+                            <span class="accordion-num">01</span>
+                            <span class="accordion-title-text">Choose Email Platform</span>
+                        </div>
+                        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5">
+                            <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                    </button>
+                    <div class="accordion-panel open" id="panel-platform">
+                        <div class="platform-grid">
+                            <button class="platform-btn active" id="platform-outlook" data-platform="outlook">
+                                <div class="platform-icon-wrap">
+                                    <!-- Outlook Old Icon -->
+                                    <img src="http://localhost:3845/assets/37e1e82e7ebe4e7c6b5024172cb91b798f710649.svg"
+                                        alt="Outlook" width="28" height="27" />
+                                </div>
+                                <span class="platform-label">Outlook</span>
+                            </button>
+                            <button class="platform-btn" id="platform-new-outlook" data-platform="new-outlook">
+                                <div class="platform-icon-wrap">
+                                    <!-- New Outlook Icon -->
+                                    <img src="http://localhost:3845/assets/aded9781e6d049314bc54dcec6d51f868220eb10.svg"
+                                        alt="New Outlook" width="28" height="27" />
+                                </div>
+                                <span class="platform-label">New Outlook</span>
+                            </button>
+                            <button class="platform-btn" id="platform-office365" data-platform="office365">
+                                <div class="platform-icon-wrap">
+                                    <!-- Office 365 Icon -->
+                                    <img src="http://localhost:3845/assets/e9dde547a172a4fd83964b027c905f739a3c40c8.svg"
+                                        alt="Office 365" width="24" height="30" />
+                                </div>
+                                <span class="platform-label">Office 365</span>
+                            </button>
+                        </div>
                     </div>
+                </div>
 
-                    <button id="copy-btn" class="btn primary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        Copy Signature
+                <!-- Section 02: Enter Signature Details -->
+                <div class="accordion-section" id="section-details">
+                    <button class="accordion-header" data-target="panel-details" aria-expanded="true">
+                        <div class="accordion-label">
+                            <span class="accordion-num">02</span>
+                            <span class="accordion-title-text">Enter signature details</span>
+                        </div>
+                        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5">
+                            <polyline points="18 15 12 9 6 15" />
+                        </svg>
                     </button>
+                    <div class="accordion-panel open" id="panel-details">
+                        <div class="field-group">
+                            <label class="field-label" for="name">Name</label>
+                            <input class="field-input" type="text" id="name" name="name" placeholder="John Doe"
+                                value="John Doe" autocomplete="off">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="title">Job Title</label>
+                            <input class="field-input" type="text" id="title" name="title" placeholder="Senior Manager"
+                                value="Team Lead - Graphic Design" autocomplete="off">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="mobile">Contact Number</label>
+                            <input class="field-input" type="tel" id="mobile" name="mobile" placeholder="(800) 555-0199"
+                                value="(800) 555-0199" autocomplete="off" data-validate="phone">
+                            <span class="field-error-msg" id="mobile-error">Numbers only — no letters or special
+                                characters</span>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="location">Location</label>
+                            <input class="field-input" type="text" id="location" name="location"
+                                placeholder="Dallas, TX" value="Dallas, TX" autocomplete="off">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="linkedin">LinkedIn Profile Link</label>
+                            <input class="field-input" type="text" id="linkedin" name="linkedin"
+                                placeholder="linkedin.com/in/john-doe" value="linkedin.com/in/john-doe"
+                                autocomplete="off">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="entity">Company Entity</label>
+                            <select class="field-input field-select" id="entity" name="entity">
+                                <option value="Collabera LLC" selected>Collabera LLC</option>
+                                <option value="Collabera GTC">Collabera GTC</option>
+                                <option value="Collabera Digital">Collabera Digital</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-                    <button id="download-btn" class="btn secondary" title="Download HTML file">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Export HTML
+                <!-- Section 03: Logos -->
+                <div class="accordion-section" id="section-logos">
+                    <button class="accordion-header" data-target="panel-logos" aria-expanded="true">
+                        <div class="accordion-label">
+                            <span class="accordion-num">03</span>
+                            <span class="accordion-title-text">Logos</span>
+                        </div>
+                        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5">
+                            <polyline points="18 15 12 9 6 15" />
+                        </svg>
                     </button>
+                    <div class="accordion-panel open" id="panel-logos">
+                        <p class="logos-helper">Select the logos you'd like to include in your signature.</p>
+                        <div class="logo-grid">
+                            <!-- PC Badge -->
+                            <div class="logo-tile selected" id="logo-pc-badge" data-logo="pc-badge">
+                                <div class="logo-check">
+                                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                                        <circle cx="5" cy="5" r="5" fill="#27717C" />
+                                        <path d="M3 5l1.5 1.5L7 3.5" stroke="white" stroke-width="1.2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <img src="http://localhost:3845/assets/9cd3782f2e6cb913f29bcdb6bde4f97c29b4ff63.svg"
+                                    alt="PC Badge" />
+                                <div class="logo-count-badge">
+                                    <span class="logo-count-label">Number of PC Wins</span>
+                                    <div class="logo-count-control">
+                                        <span class="count-value" id="pc-count">1</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Certification Badge (Wlab Full) -->
+                            <div class="logo-tile selected" id="logo-cert-badge" data-logo="cert-badge">
+                                <div class="logo-check">
+                                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                                        <circle cx="5" cy="5" r="5" fill="#27717C" />
+                                        <path d="M3 5l1.5 1.5L7 3.5" stroke="white" stroke-width="1.2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <img src="http://localhost:3845/assets/148d4c6fee63fe391e8b73ac4410b1e5635237d8.svg"
+                                    alt="Certification Badge" />
+                                <div class="logo-tags">
+                                    <span class="logo-tag">Wordmark</span>
+                                    <span class="logo-tag">Icon</span>
+                                </div>
+                            </div>
+                            <!-- Women Workplace -->
+                            <div class="logo-tile" id="logo-women-wp" data-logo="women-wp">
+                                <div class="logo-check">
+                                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                                        <circle cx="5" cy="5" r="5" fill="#27717C" />
+                                        <path d="M3 5l1.5 1.5L7 3.5" stroke="white" stroke-width="1.2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <img src="http://localhost:3845/assets/bb0240d62015f14704be86df8810e6e69192a695.svg"
+                                    alt="Women Workplace" style="opacity: 0.3;" />
+                            </div>
+                            <!-- Wlab Icon -->
+                            <div class="logo-tile" id="logo-wlab" data-logo="wlab">
+                                <div class="logo-check">
+                                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                                        <circle cx="5" cy="5" r="5" fill="#27717C" />
+                                        <path d="M3 5l1.5 1.5L7 3.5" stroke="white" stroke-width="1.2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <img src="http://localhost:3845/assets/9439ea3d9c254576638011a9f752b75f53abb5b0.svg"
+                                    alt="Wlab" style="opacity: 0.3;" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="preview-canvas-wrapper" id="canvas-wrapper">
-                <div class="canvas-card" id="canvas-card">
-                    <iframe id="preview-frame" title="Email Signature Preview" sandbox="allow-same-origin allow-scripts"></iframe>
-                </div>
-            </div>
+            </div><!-- /accordion-stack -->
 
-            <div class="panel-footer-info">
-                <span>&check; 100% Inline CSS & Table Layout &bull; Tested on Outlook, Gmail, Apple Mail, & Mobile Clients</span>
-            </div>
-        </section>
+            <!-- Apply CTA -->
+            <button class="apply-btn" id="apply-btn">Apply Your Signature</button>
 
-        <!-- Right Panel: Schema Form Controls -->
-        <section class="form-panel">
-            <div class="panel-header">
-                <div class="header-title">
-                    <h2>Customize Fields</h2>
-                    <span class="subtitle">Updates live in real time</span>
-                </div>
+        </aside><!-- /side-nav -->
 
-                <!-- Brand Color Presets -->
-                <div class="color-presets" title="Quick Brand Colors">
-                    <button class="preset-pill" data-primary="#05262B" data-secondary="#50B1FB" style="background: linear-gradient(135deg, #05262B 50%, #50B1FB 50%);" title="Collabera Lake Blue"></button>
-                    <button class="preset-pill" data-primary="#05262B" data-secondary="#A98B64" style="background: linear-gradient(135deg, #05262B 50%, #A98B64 50%);" title="Collabera Gold"></button>
-                    <button class="preset-pill" data-primary="#0f172a" data-secondary="#2563eb" style="background: linear-gradient(135deg, #0f172a 50%, #2563eb 50%);" title="Modern Blue"></button>
-                    <button class="preset-pill" data-primary="#1e293b" data-secondary="#0284c7" style="background: linear-gradient(135deg, #1e293b 50%, #0284c7 50%);" title="Sky Corporate"></button>
-                </div>
-            </div>
-
-            <div class="form-content">
-                <form id="signature-form" autocomplete="off">
-                    <!-- Fields will be dynamically generated by schema -->
-                </form>
-            </div>
-        </section>
-    </main>
+    </div><!-- /app-layout -->
 
     <!-- Toast Notification -->
     <div id="toast" class="toast hidden">
-        <div class="toast-icon">&check;</div>
-        <div class="toast-message" id="toast-message">Signature copied to clipboard! Paste directly into Gmail/Outlook settings.</div>
+        <div class="toast-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+        </div>
+        <div class="toast-message" id="toast-message">Signature copied to clipboard!</div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts: load individual templates first, then registry, then app -->
+    <script src="Res/templates/template-1.js"></script>
     <script src="template.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
