@@ -7,7 +7,7 @@ while ($L.IsListening) {
     try {
         $C=$L.GetContext()
         $R=$C.Response
-        $P=$C.Request.Url.LocalPath
+        $P=[System.Uri]::UnescapeDataString($C.Request.Url.LocalPath)
         if ($P -eq "/") { $P = "/index.html" }
         $F=Join-Path (Get-Location) $P.TrimStart('/')
         if (Test-Path $F -PathType Leaf) {
@@ -15,6 +15,8 @@ while ($L.IsListening) {
             if ($F.EndsWith(".html")) { $R.ContentType="text/html; charset=utf-8" }
             elseif ($F.EndsWith(".js")) { $R.ContentType="application/javascript; charset=utf-8" }
             elseif ($F.EndsWith(".css")) { $R.ContentType="text/css; charset=utf-8" }
+            elseif ($F.EndsWith(".svg")) { $R.ContentType="image/svg+xml; charset=utf-8" }
+            elseif ($F.EndsWith(".png")) { $R.ContentType="image/png" }
             $R.ContentLength64=$B.Length
             $R.OutputStream.Write($B,0,$B.Length)
         } else {

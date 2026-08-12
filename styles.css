@@ -501,9 +501,9 @@ select {
 .logo-tile {
     position: relative;
     height: 80px;
-    background: rgba(217, 217, 217, 0.50);
-    border-radius: 5px;
-    border: 0.5px solid transparent;
+    background: #B9B9B9;
+    border-radius: 7px;
+    border: 0.7px solid rgba(232, 232, 232, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -512,30 +512,39 @@ select {
     transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.logo-tile.selected {
-    background: var(--white);
-    border-color: var(--teal-primary);
-    box-shadow: 0 0 0 0.5px rgba(39, 113, 124, 0.2);
+.logo-tile:hover:not(.selected) {
+    background: #A8A8A8;
 }
 
-.logo-tile:hover:not(.selected) {
-    background: rgba(217, 217, 217, 0.70);
+.logo-tile.selected {
+    background: #FFFFFF;
+    border: 0.7px solid var(--teal-primary);
+    box-shadow: 0 0 0 0.5px rgba(39, 113, 124, 0.2);
 }
 
 .logo-tile img {
     max-width: 70%;
-    max-height: 50px;
+    max-height: 52px;
     object-fit: contain;
     display: block;
+    transition: opacity var(--transition-fast);
+}
+
+.logo-tile:not(.selected) img {
+    opacity: 0.85;
+}
+
+.logo-tile.selected img {
+    opacity: 1;
 }
 
 /* Selection check dot */
 .logo-check {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 10px;
-    height: 10px;
+    top: 6px;
+    right: 6px;
+    width: 12px;
+    height: 12px;
     opacity: 0;
     transition: opacity var(--transition-fast);
 }
