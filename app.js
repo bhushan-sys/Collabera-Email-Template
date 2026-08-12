@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────────────────
     // 2. PROFILE IMAGE UPLOAD & TOGGLE (SECTION 02)
     // ─────────────────────────────────────────────────────────
-    const DEFAULT_EXAMPLE_IMAGE = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80';
+    const DEFAULT_EXAMPLE_IMAGE = 'https://images.unsplash.com/photo-1733348137613-90f1af8674fd?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
     const profileToggle = document.getElementById('profile-toggle');
     const dropzone = document.getElementById('upload-dropzone');
