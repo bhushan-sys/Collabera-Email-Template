@@ -112,7 +112,7 @@
 
                 <!-- Section 02: Enter Signature Details -->
                 <div class="accordion-section" id="section-details">
-                    <button class="accordion-header" data-target="panel-details" aria-expanded="true">
+                    <button class="accordion-header" data-target="panel-details" aria-expanded="false">
                         <div class="accordion-label">
                             <span class="accordion-num">02</span>
                             <span class="accordion-title-text">Enter signature details</span>
@@ -122,49 +122,60 @@
                             <polyline points="18 15 12 9 6 15" />
                         </svg>
                     </button>
-                    <div class="accordion-panel open" id="panel-details">
+                    <div class="accordion-panel" id="panel-details">
                         <div class="field-group">
-                            <label class="field-label" for="name">Name</label>
-                            <input class="field-input" type="text" id="name" name="name" placeholder="John Doe"
-                                value="John Doe" autocomplete="off">
+                            <div class="floating-field">
+                                <input class="floating-input" type="text" id="name" name="name" placeholder=" "
+                                    value="John Doe" autocomplete="off">
+                                <label class="floating-label" for="name">Name</label>
+                            </div>
                         </div>
                         <div class="field-group">
-                            <label class="field-label" for="title">Job Title</label>
-                            <input class="field-input" type="text" id="title" name="title" placeholder="Senior Manager"
-                                value="Team Lead - Graphic Design" autocomplete="off">
+                            <div class="floating-field">
+                                <input class="floating-input" type="text" id="title" name="title" placeholder=" "
+                                    value="Team Lead - Graphic Design" autocomplete="off">
+                                <label class="floating-label" for="title">Job Title</label>
+                            </div>
                         </div>
                         <div class="field-group">
-                            <label class="field-label" for="mobile">Contact Number</label>
-                            <input class="field-input" type="tel" id="mobile" name="mobile" placeholder="(800) 555-0199"
-                                value="(800) 555-0199" autocomplete="off" data-validate="phone">
+                            <div class="floating-field" id="mobile-field-wrap">
+                                <input class="floating-input" type="tel" id="mobile" name="mobile" placeholder=" "
+                                    value="(800) 555-0199" autocomplete="off" data-validate="phone">
+                                <label class="floating-label" for="mobile">Contact Number</label>
+                            </div>
                             <span class="field-error-msg" id="mobile-error">Numbers only — no letters or special
                                 characters</span>
                         </div>
                         <div class="field-group">
-                            <label class="field-label" for="location">Location</label>
-                            <input class="field-input" type="text" id="location" name="location"
-                                placeholder="Dallas, TX" value="Dallas, TX" autocomplete="off">
+                            <div class="floating-field">
+                                <input class="floating-input" type="text" id="location" name="location" placeholder=" "
+                                    value="Dallas, TX" autocomplete="off">
+                                <label class="floating-label" for="location">Location</label>
+                            </div>
                         </div>
                         <div class="field-group">
-                            <label class="field-label" for="linkedin">LinkedIn Profile Link</label>
-                            <input class="field-input" type="text" id="linkedin" name="linkedin"
-                                placeholder="linkedin.com/in/john-doe" value="linkedin.com/in/john-doe"
-                                autocomplete="off">
+                            <div class="floating-field">
+                                <input class="floating-input" type="text" id="linkedin" name="linkedin" placeholder=" "
+                                    value="linkedin.com/in/john-doe" autocomplete="off">
+                                <label class="floating-label" for="linkedin">LinkedIn Profile Link</label>
+                            </div>
                         </div>
                         <div class="field-group">
-                            <label class="field-label" for="entity">Company Entity</label>
-                            <select class="field-input field-select" id="entity" name="entity">
-                                <option value="Collabera LLC" selected>Collabera LLC</option>
-                                <option value="Collabera GTC">Collabera GTC</option>
-                                <option value="Collabera Digital">Collabera Digital</option>
-                            </select>
+                            <div class="floating-field">
+                                <select class="floating-input floating-select has-value" id="entity" name="entity">
+                                    <option value="Collabera LLC" selected>Collabera LLC</option>
+                                    <option value="Collabera GTC">Collabera GTC</option>
+                                    <option value="Collabera Digital">Collabera Digital</option>
+                                </select>
+                                <label class="floating-label" for="entity">Company Entity</label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Section 03: Logos -->
                 <div class="accordion-section" id="section-logos">
-                    <button class="accordion-header" data-target="panel-logos" aria-expanded="true">
+                    <button class="accordion-header" data-target="panel-logos" aria-expanded="false">
                         <div class="accordion-label">
                             <span class="accordion-num">03</span>
                             <span class="accordion-title-text">Logos</span>
@@ -174,7 +185,7 @@
                             <polyline points="18 15 12 9 6 15" />
                         </svg>
                     </button>
-                    <div class="accordion-panel open" id="panel-logos">
+                    <div class="accordion-panel" id="panel-logos">
                         <p class="logos-helper">Select the logos you'd like to include in your signature.</p>
                         <div class="logo-grid">
                             <!-- President's Club -->

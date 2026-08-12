@@ -36,7 +36,7 @@ const template1 = {
                             {{#if mobile != ''}}
                             <tr>
                                 <td style="padding-bottom: 2px; white-space: nowrap;">
-                                    <span style="font-weight: 700; font-family: 'Red Hat Display', Arial, sans-serif; font-size: 16px; color: #05262B;">Mobile:</span>
+                                    <span style="font-weight: 700; font-family: 'Red Hat Display', Arial, sans-serif; font-size: 16px; color: #05262B;">M:</span>
                                     <span style="font-weight: 400; font-family: 'Red Hat Display', Arial, sans-serif; font-size: 16px; color: #05262B;"> {{mobile}}</span>
                                 </td>
                             </tr>
@@ -51,7 +51,8 @@ const template1 = {
                             {{#if location != ''}}
                             <tr>
                                 <td style="padding-bottom: 2px; white-space: nowrap;">
-                                    <span style="font-weight: 400; font-family: 'Red Hat Display', Arial, sans-serif; font-size: 16px; color: #05262B;">{{location}}</span>
+                                    <span style="font-weight: 700; font-family: 'Red Hat Display', Arial, sans-serif; font-size: 16px; color: #05262B;">L:</span>
+                                    <span style="font-weight: 400; font-family: 'Red Hat Display', Arial, sans-serif; font-size: 16px; color: #05262B;"> {{location}}</span>
                                 </td>
                             </tr>
                             {{/if}}

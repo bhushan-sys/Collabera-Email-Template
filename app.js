@@ -24,13 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const panel    = document.getElementById(targetId);
             const isOpen   = panel.classList.contains('open');
 
-            if (isOpen) {
-                panel.classList.remove('open');
-                header.setAttribute('aria-expanded', 'false');
-            } else {
-                panel.classList.add('open');
-                header.setAttribute('aria-expanded', 'true');
-            }
+            // If already open, do nothing — always keep one panel open
+            if (isOpen) return;
+
+            // Close all other panels first
+            document.querySelectorAll('.accordion-panel').forEach(p => p.classList.remove('open'));
+            document.querySelectorAll('.accordion-header').forEach(h => h.setAttribute('aria-expanded', 'false'));
+
+            // Open the clicked panel
+            panel.classList.add('open');
+            header.setAttribute('aria-expanded', 'true');
         });
     });
 
@@ -62,18 +65,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (mobileInput) {
+        const mobileWrap = mobileInput.closest('.floating-field') || mobileInput;
         mobileInput.addEventListener('input', () => {
             const valid = validatePhone(mobileInput.value);
             if (!valid) {
-                mobileInput.classList.add('field-input--error');
+                mobileWrap.classList.add('floating-field--error');
                 if (mobileError) mobileError.classList.add('visible');
             } else {
-                mobileInput.classList.remove('field-input--error');
+                mobileWrap.classList.remove('floating-field--error');
                 if (mobileError) mobileError.classList.remove('visible');
             }
             // Still update preview — show what was typed
             currentFormData['mobile'] = mobileInput.value;
             updatePreview();
+        });
+    }
+
+    const entitySelect = document.getElementById('entity');
+    if (entitySelect) {
+        entitySelect.addEventListener('change', () => {
+            if (entitySelect.value) {
+                entitySelect.classList.add('has-value');
+            } else {
+                entitySelect.classList.remove('has-value');
+            }
         });
     }
 
@@ -178,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <style>
         body {
             margin: 0;
-            padding: 24px;
+            padding: 0;
             background: #ffffff;
             font-family: 'Red Hat Display', Arial, sans-serif;
         }
