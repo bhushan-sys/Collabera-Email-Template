@@ -528,7 +528,7 @@ select {
    SECTION 03 — LOGOS GRID
 ═══════════════════════════════════════════════ */
 .logos-helper {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 400;
     color: var(--text-muted);
     font-family: 'Red Hat Display', sans-serif;
@@ -611,19 +611,19 @@ select {
 }
 
 .logo-tile-title {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     color: #2E2E2E;
     font-family: 'Red Hat Display', sans-serif;
     line-height: 1.1;
-    max-width: 90px;
+    max-width: 100px;
 }
 
 /* Applied status pill */
 .logo-applied-pill {
     background: #0B4048;
     color: #FFFFFF;
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 700;
     font-family: 'Red Hat Display', sans-serif;
     padding: 2px 8px;
