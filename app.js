@@ -80,9 +80,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────────────────
     // 3. LOGO TILE SELECTOR
     // ─────────────────────────────────────────────────────────
+    const logoMap = {
+        'pc-badge': 'showPcBadge',
+        'cert-badge': 'showCertBadge',
+        'women-wp': 'showWomenWp',
+        'wlab': 'showWlab'
+    };
+
     document.querySelectorAll('.logo-tile').forEach(tile => {
         tile.addEventListener('click', () => {
-            tile.classList.toggle('selected');
+            const isSelected = tile.classList.toggle('selected');
+            const logoKey = tile.getAttribute('data-logo');
+            const formKey = logoMap[logoKey];
+            if (formKey) {
+                currentFormData[formKey] = isSelected ? 'true' : 'false';
+                updatePreview();
+            }
         });
     });
 
@@ -97,10 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) currentFormData[id] = el.value;
     });
 
-    // Also include non-field template tokens
+    // Also include non-field template tokens (logos off by default)
     currentFormData.primaryColor   = '#05262B';
     currentFormData.secondaryColor = '#AA9269';
     currentFormData.website        = 'www.collabera.com';
+    currentFormData.showPcBadge    = 'false';
+    currentFormData.showCertBadge  = 'false';
+    currentFormData.showWomenWp    = 'false';
+    currentFormData.showWlab       = 'false';
 
     // Attach input listeners (mobile handled separately above for validation)
     fieldIds.forEach(id => {
