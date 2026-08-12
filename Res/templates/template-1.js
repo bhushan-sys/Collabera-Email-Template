@@ -18,7 +18,7 @@ const template1 = {
                     {{#if showProfileImage == 'true'}}
                     <!-- Profile Photo Column (Figma node 767:1477) -->
                     <td valign="middle" style="width: 150px; min-width: 150px; padding-right: 20px;">
-                        <img src="{{profileImage}}" width="150" height="149" alt="Profile Photo" style="display: block; width: 150px; height: 149px; border: 0; outline: none; text-decoration: none; border-radius: 32px; object-fit: cover;" />
+                        <img src="{{profileImage}}" width="150" height="149" alt="Profile Photo" style="display: block; width: 150px; height: 149px; border: 0; outline: none; text-decoration: none;" />
                     </td>
                     <!-- Vertical Divider Line (Figma node 765:1165) -->
                     <td valign="middle" style="width: 1px; min-width: 1px; padding: 0;">
