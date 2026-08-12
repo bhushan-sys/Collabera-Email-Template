@@ -15,8 +15,27 @@ const template1 = {
         <td style="padding-bottom: 20px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
+                    {{#if showProfileImage == 'true'}}
+                    <!-- Profile Photo Column (Figma node 767:1477) -->
+                    <td valign="middle" style="width: 150px; min-width: 150px; padding-right: 20px;">
+                        <svg width="150" height="149" viewBox="0 0 115 114" style="display: block; width: 150px; height: 149px;">
+                            <defs>
+                                <mask id="profile-barrel-mask">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z" fill="#FFFFFF"/>
+                                </mask>
+                            </defs>
+                            <image href="{{profileImage}}" width="115" height="114" preserveAspectRatio="xMidYMid slice" mask="url(#profile-barrel-mask)" />
+                        </svg>
+                    </td>
+                    <!-- Vertical Divider Line (Figma node 765:1165) -->
+                    <td valign="middle" style="width: 1px; min-width: 1px; padding: 0;">
+                        <div style="width: 1px; min-width: 1px; height: 160px; background-color: rgba(5, 38, 43, 0.30); line-height: 1px; font-size: 1px;"></div>
+                    </td>
+                    <!-- Gap right of Divider Line (Figma 20px gap) -->
+                    <td valign="middle" style="width: 20px; min-width: 20px;">&nbsp;</td>
+                    {{/if}}
                     <!-- Left: User + Contact Details -->
-                    <td valign="top" style="font-family: 'Red Hat Display', Arial, sans-serif;">
+                    <td valign="middle" style="font-family: 'Red Hat Display', Arial, sans-serif;">
                         <!-- Name & Title -->
                         <table cellpadding="0" cellspacing="0" border="0" style="padding-bottom: 16px;">
                             <tr>

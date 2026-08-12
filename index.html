@@ -17,6 +17,15 @@
 
 <body>
 
+    <!-- Global SVG Defs for Masking (using Profile Image Placeholder.svg) -->
+    <svg width="0" height="0" style="position: absolute; pointer-events: none;">
+        <defs>
+            <clipPath id="avatar-barrel-mask" clipPathUnits="objectBoundingBox" transform="scale(0.00869565, 0.00877193)">
+                <path d="M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z" />
+            </clipPath>
+        </defs>
+    </svg>
+
     <!-- Main App Layout -->
     <div class="app-layout">
 
@@ -55,7 +64,7 @@
             <!-- Live Preview Canvas -->
             <div class="preview-area">
                 <div class="preview-canvas">
-                    <iframe id="preview-frame" title="Email Signature Preview"></iframe>
+                    <iframe id="preview-frame" title="Email Signature Preview" scrolling="no"></iframe>
                 </div>
             </div>
 
@@ -69,16 +78,18 @@
             <div class="accordion-stack" id="signature-form">
 
                 <!-- Section 01: Choose Email Platform -->
-                <div class="accordion-section" id="section-platform">
+                <div class="accordion-section open" id="section-platform">
                     <button class="accordion-header" data-target="panel-platform" aria-expanded="true">
                         <div class="accordion-label">
                             <span class="accordion-num">01</span>
                             <span class="accordion-title-text">Choose Email Platform</span>
                         </div>
-                        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2.5">
-                            <polyline points="18 15 12 9 6 15" />
-                        </svg>
+                        <div class="chevron-circle">
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5">
+                                <polyline points="18 15 12 9 6 15" />
+                            </svg>
+                        </div>
                     </button>
                     <div class="accordion-panel open" id="panel-platform">
                         <div class="platform-grid">
@@ -110,17 +121,61 @@
                     </div>
                 </div>
 
-                <!-- Section 02: Enter Signature Details -->
+                <!-- Section 02: Upload Your Profile Image -->
+                <div class="accordion-section" id="section-profile">
+                    <button class="accordion-header" data-target="panel-profile" aria-expanded="false">
+                        <div class="accordion-label">
+                            <span class="accordion-num">02</span>
+                            <span class="accordion-title-text">Upload Your Profile Image</span>
+                        </div>
+                        <label class="toggle-switch" onclick="event.stopPropagation();">
+                            <input type="checkbox" id="profile-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </button>
+                    <div class="accordion-panel" id="panel-profile">
+                        <div class="upload-dropzone" id="upload-dropzone">
+                            <input type="file" id="profile-upload-input" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+                            
+                            <!-- Upload Placeholder State -->
+                            <div class="upload-placeholder" id="upload-placeholder">
+                                <img class="upload-icon" src="Res/image_upload_icon.svg" alt="Upload Icon" />
+                                <p class="upload-title">Drop your image here or <span class="upload-browse-link">browse</span></p>
+                                <p class="upload-subtitle">Supports: PNG, JPG, JPEG, WEBP</p>
+                            </div>
+
+                            <!-- Custom Uploaded Image Preview State (shown ONLY when user uploads custom photo) -->
+                            <div class="upload-preview-state hidden" id="upload-preview-state">
+                                <svg width="56" height="56" viewBox="0 0 115 114" style="display: block; flex-shrink: 0;">
+                                    <defs>
+                                        <mask id="dropzone-barrel-mask">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z" fill="#FFFFFF"/>
+                                        </mask>
+                                    </defs>
+                                    <image id="uploaded-profile-img-svg" href="" width="115" height="114" preserveAspectRatio="xMidYMid slice" mask="url(#dropzone-barrel-mask)" />
+                                </svg>
+                                <div class="upload-preview-actions">
+                                    <span class="upload-change-btn">Change Photo</span>
+                                    <button type="button" class="upload-remove-btn" id="upload-remove-btn" title="Remove Custom Photo">&times;</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 03: Enter Signature Details -->
                 <div class="accordion-section" id="section-details">
                     <button class="accordion-header" data-target="panel-details" aria-expanded="false">
                         <div class="accordion-label">
-                            <span class="accordion-num">02</span>
+                            <span class="accordion-num">03</span>
                             <span class="accordion-title-text">Enter signature details</span>
                         </div>
-                        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2.5">
-                            <polyline points="18 15 12 9 6 15" />
-                        </svg>
+                        <div class="chevron-circle">
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5">
+                                <polyline points="18 15 12 9 6 15" />
+                            </svg>
+                        </div>
                     </button>
                     <div class="accordion-panel" id="panel-details">
                         <div class="field-group">
@@ -173,17 +228,19 @@
                     </div>
                 </div>
 
-                <!-- Section 03: Logos -->
+                <!-- Section 04: Logos -->
                 <div class="accordion-section" id="section-logos">
                     <button class="accordion-header" data-target="panel-logos" aria-expanded="false">
                         <div class="accordion-label">
-                            <span class="accordion-num">03</span>
+                            <span class="accordion-num">04</span>
                             <span class="accordion-title-text">Logos</span>
                         </div>
-                        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2.5">
-                            <polyline points="18 15 12 9 6 15" />
-                        </svg>
+                        <div class="chevron-circle">
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5">
+                                <polyline points="18 15 12 9 6 15" />
+                            </svg>
+                        </div>
                     </button>
                     <div class="accordion-panel" id="panel-logos">
                         <p class="logos-helper">Select the logos you'd like to include in your signature.</p>
