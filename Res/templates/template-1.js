@@ -111,12 +111,12 @@ const template1 = {
                     </td>
                     {{#if showPcBadge == 'true'}}
                     <td valign="middle" style="padding-left: 32px;">
-                        <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Presidents_Club_Badge.svg" alt="President's Club 2026" width="78" height="78" style="display: block; width: 78px; height: 78px; border: 0;" />
+                        <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/1_Badge.svg" alt="President's Club" width="78" height="78" style="display: block; width: 78px; height: 78px; border: 0;" />
                     </td>
                     {{/if}}
                     {{#if showWlab == 'true'}}
                     <td valign="middle" style="padding-left: 32px;">
-                        <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Wlab_Wordmark.svg" alt="Women's Leadership Advisory Board" width="163" height="69" style="display: block; width: 163px; height: 69px; border: 0;" />
+                        <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Wlab%20Full.svg" alt="Women's Leadership Advisory Board" width="163" height="69" style="display: block; width: 163px; height: 69px; border: 0;" />
                     </td>
                     {{/if}}
                 </tr>
