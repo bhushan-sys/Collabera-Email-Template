@@ -20,8 +20,10 @@
     <!-- Global SVG Defs for Masking (using Profile Image Placeholder.svg) -->
     <svg width="0" height="0" style="position: absolute; pointer-events: none;">
         <defs>
-            <clipPath id="avatar-barrel-mask" clipPathUnits="objectBoundingBox" transform="scale(0.00869565, 0.00877193)">
-                <path d="M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z" />
+            <clipPath id="avatar-barrel-mask" clipPathUnits="objectBoundingBox"
+                transform="scale(0.00869565, 0.00877193)">
+                <path
+                    d="M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z" />
             </clipPath>
         </defs>
     </svg>
@@ -38,30 +40,53 @@
                     <img src="https://raw.githubusercontent.com/bhushan-sys/Collabera-Email-Template/main/Res/Collabera%20Logo.svg"
                         alt="Collabera" height="24" style="height: 24px; display: block;" />
                     <span class="navbar-divider"></span>
-                    <span class="navbar-title">Signature Studio</span>
+                    <span class="navbar-title">Email Signature</span>
                 </div>
                 <div class="navbar-actions">
-                    <button id="copy-btn" class="btn-outline" title="Copy signature to clipboard">
+                    <button id="copy-btn" class="btn-primary" title="Copy signature to clipboard">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <rect x="9" y="9" width="13" height="13" rx="2" />
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                         </svg>
-                        Copy HTML
+                        Copy Signature
                     </button>
-                    <button id="download-btn" class="btn-outline" title="Download HTML file">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        Export
+                    <!-- Dark / Light Mode Toggle (Figma node 930:10071) -->
+                    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Theme"
+                        aria-label="Toggle theme">
+                        <span class="theme-toggle-thumb"></span>
+                        <span class="theme-toggle-icon icon-sun">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="5" />
+                                <line x1="12" y1="1" x2="12" y2="3" />
+                                <line x1="12" y1="21" x2="12" y2="23" />
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                                <line x1="1" y1="12" x2="3" y2="12" />
+                                <line x1="21" y1="12" x2="23" y2="12" />
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                            </svg>
+                        </span>
+                        <span class="theme-toggle-icon icon-moon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                            </svg>
+                        </span>
                     </button>
                 </div>
             </div>
 
-            <!-- Live Preview Canvas -->
+            <!-- Floating Template Bar (Right below main navbar) -->
+            <div class="template-bar">
+                <button class="template-bar-tab active" id="tab-template-1" data-template-index="0">Template 1</button>
+                <button class="template-bar-tab" id="tab-template-2" data-template-index="1">Template 2</button>
+                <button class="template-bar-tab" id="tab-template-3" data-template-index="2">Template 3</button>
+            </div>
+
+            <!-- Live Preview Canvas Area -->
             <div class="preview-area">
                 <div class="preview-canvas">
                     <iframe id="preview-frame" title="Email Signature Preview" scrolling="no"></iframe>
@@ -96,24 +121,21 @@
                             <button class="platform-btn active" id="platform-outlook" data-platform="outlook">
                                 <div class="platform-icon-wrap">
                                     <!-- Outlook Old Icon -->
-                                    <img src="Res/Outlook_Old.svg"
-                                        alt="Outlook" width="28" height="27" />
+                                    <img src="Res/Outlook_Old.svg" alt="Outlook" width="28" height="27" />
                                 </div>
                                 <span class="platform-label">Outlook</span>
                             </button>
                             <button class="platform-btn" id="platform-new-outlook" data-platform="new-outlook">
                                 <div class="platform-icon-wrap">
                                     <!-- New Outlook Icon -->
-                                    <img src="Res/Outlook_New.svg"
-                                        alt="New Outlook" width="28" height="27" />
+                                    <img src="Res/Outlook_New.svg" alt="New Outlook" width="28" height="27" />
                                 </div>
                                 <span class="platform-label">New Outlook</span>
                             </button>
                             <button class="platform-btn" id="platform-office365" data-platform="office365">
                                 <div class="platform-icon-wrap">
                                     <!-- Office 365 Icon -->
-                                    <img src="Res/Office365.svg"
-                                        alt="Office 365" width="24" height="30" />
+                                    <img src="Res/Office365.svg" alt="Office 365" width="24" height="30" />
                                 </div>
                                 <span class="platform-label">Office 365</span>
                             </button>
@@ -135,28 +157,42 @@
                     </button>
                     <div class="accordion-panel" id="panel-profile">
                         <div class="upload-dropzone" id="upload-dropzone">
-                            <input type="file" id="profile-upload-input" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
-                            
+                            <input type="file" id="profile-upload-input"
+                                accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+
                             <!-- Upload Placeholder State -->
                             <div class="upload-placeholder" id="upload-placeholder">
                                 <img class="upload-icon" src="Res/image_upload_icon.svg" alt="Upload Icon" />
-                                <p class="upload-title">Drop your image here or <span class="upload-browse-link">browse</span></p>
+                                <p class="upload-title">Drop your image here or <span
+                                        class="upload-browse-link">browse</span></p>
                                 <p class="upload-subtitle">Supports: PNG, JPG, JPEG, WEBP</p>
                             </div>
 
-                            <!-- Custom Uploaded Image Preview State (shown ONLY when user uploads custom photo) -->
+                            <!-- Custom Uploaded Image Editor State (Figma Node 914-9419) -->
                             <div class="upload-preview-state hidden" id="upload-preview-state">
-                                <svg width="56" height="56" viewBox="0 0 115 114" style="display: block; flex-shrink: 0;">
-                                    <defs>
-                                        <mask id="dropzone-barrel-mask">
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z" fill="#FFFFFF"/>
-                                        </mask>
-                                    </defs>
-                                    <image id="uploaded-profile-img-svg" href="" width="115" height="114" preserveAspectRatio="xMidYMid slice" mask="url(#dropzone-barrel-mask)" />
-                                </svg>
-                                <div class="upload-preview-actions">
-                                    <span class="upload-change-btn">Change Photo</span>
-                                    <button type="button" class="upload-remove-btn" id="upload-remove-btn" title="Remove Custom Photo">&times;</button>
+                                <div class="img-editor-card">
+                                    <div class="img-editor-preview-wrap">
+                                        <canvas id="img-editor-canvas" width="115" height="114"
+                                            title="Drag to adjust position"></canvas>
+                                    </div>
+                                    <div class="img-editor-controls">
+                                        <div class="img-editor-text-group">
+                                            <p class="img-editor-title">Customise Your Profile</p>
+                                            <p class="img-editor-hint">Move the Image by dragging</p>
+                                        </div>
+                                        <div class="img-editor-scale-card">
+                                            <span class="img-editor-scale-label">Scale</span>
+                                            <input type="range" id="img-scale-slider" class="img-scale-slider" min="100"
+                                                max="200" value="100" step="1">
+                                            <div class="img-editor-scale-limits">
+                                                <span>Default</span>
+                                                <span>200%</span>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="img-editor-change-btn" id="upload-change-btn">
+                                            Change Your Profile Image
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -188,8 +224,15 @@
                         <div class="field-group">
                             <div class="floating-field">
                                 <input class="floating-input" type="text" id="title" name="title" placeholder=" "
-                                    value="Team Lead - Graphic Design" autocomplete="off">
+                                    value="Account Manager" autocomplete="off">
                                 <label class="floating-label" for="title">Job Title</label>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <div class="floating-field">
+                                <input class="floating-input" type="email" id="email" name="email" placeholder=" "
+                                    value="john.doe@collabera.com" autocomplete="off">
+                                <label class="floating-label" for="email">Email ID</label>
                             </div>
                         </div>
                         <div class="field-group">
@@ -215,16 +258,7 @@
                                 <label class="floating-label" for="linkedin">LinkedIn Profile Link</label>
                             </div>
                         </div>
-                        <div class="field-group">
-                            <div class="floating-field">
-                                <select class="floating-input floating-select has-value" id="entity" name="entity">
-                                    <option value="Collabera LLC" selected>Collabera LLC</option>
-                                    <option value="Collabera GTC">Collabera GTC</option>
-                                    <option value="Collabera Digital">Collabera Digital</option>
-                                </select>
-                                <label class="floating-label" for="entity">Company Entity</label>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
@@ -339,6 +373,8 @@
 
     <!-- Scripts: load individual templates first, then registry, then app -->
     <script src="Res/templates/template-1.js"></script>
+    <script src="Res/templates/template-2.js"></script>
+    <script src="Res/templates/template-3.js"></script>
     <script src="template.js"></script>
     <script src="app.js"></script>
 </body>

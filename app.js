@@ -3,17 +3,33 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ── DOM refs ──────────────────────────────────────────────
-    const previewFrame  = document.getElementById('preview-frame');
-    const copyBtn       = document.getElementById('copy-btn');
-    const downloadBtn   = document.getElementById('download-btn');
-    const applyBtn      = document.getElementById('apply-btn');
-    const toast         = document.getElementById('toast');
-    const toastMessage  = document.getElementById('toast-message');
+    const previewFrame = document.getElementById('preview-frame');
+    const copyBtn = document.getElementById('copy-btn');
+    const downloadBtn = document.getElementById('download-btn');
+    const applyBtn = document.getElementById('apply-btn');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
 
     // ── State ─────────────────────────────────────────────────
-    const activeTemplate = templates[0];
-    let currentFormData  = {};
-    let selectedPlatform = 'outlook';   // default
+    let activeTemplate = (typeof templates !== 'undefined' && templates.length > 0) ? templates[0] : null;
+    let currentFormData = {};
+    let selectedPlatform = 'outlook'; // default
+
+    // ── Dark/Light Theme Toggle (Figma node 930:10071) ────────
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        const savedTheme = localStorage.getItem('collabera_theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('collabera_theme', isDark ? 'dark' : 'light');
+            showToast(`Switched to ${isDark ? 'Dark' : 'Light'} Mode`);
+        });
+    }
 
     // ─────────────────────────────────────────────────────────
     // 1. ACCORDION — collapse / expand sections
@@ -26,9 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.closest('.toggle-switch')) return;
 
             const targetId = header.getAttribute('data-target');
-            const panel    = document.getElementById(targetId);
-            const section  = header.closest('.accordion-section');
-            const isOpen   = panel.classList.contains('open');
+            const panel = document.getElementById(targetId);
+            const section = header.closest('.accordion-section');
+            const isOpen = panel.classList.contains('open');
 
             if (targetId === 'panel-profile') {
                 const profileToggle = document.getElementById('profile-toggle');
@@ -95,14 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (header) header.setAttribute('aria-expanded', 'true');
                 if (section) section.classList.add('open');
                 if (dropzone) dropzone.classList.remove('disabled');
-                
+
                 if (!isCustomUpload) {
                     currentFormData['profileImage'] = DEFAULT_EXAMPLE_IMAGE;
                     if (uploadPlaceholder) uploadPlaceholder.classList.remove('hidden');
                     if (uploadPreviewState) uploadPreviewState.classList.add('hidden');
                 } else {
                     currentFormData['profileImage'] = currentProfileImageData;
-                    updateDropzonePreview(currentProfileImageData);
+                    if (imgEditorState.img) renderEditorCanvas();
                     if (uploadPlaceholder) uploadPlaceholder.classList.add('hidden');
                     if (uploadPreviewState) uploadPreviewState.classList.remove('hidden');
                 }
@@ -120,8 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (dropzone && profileInput) {
         dropzone.addEventListener('click', (e) => {
-            if (e.target.closest('#upload-remove-btn')) return;
+            if (e.target.closest('#upload-change-btn') || e.target.closest('.img-scale-slider') || e.target.closest('#img-editor-canvas')) return;
             if (profileToggle && !profileToggle.checked) return;
+            if (uploadPreviewState && !uploadPreviewState.classList.contains('hidden')) return;
             profileInput.click();
         });
 
@@ -152,75 +169,170 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (uploadRemoveBtn) {
-        uploadRemoveBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            isCustomUpload = false;
-            currentProfileImageData = '';
-            currentFormData['profileImage'] = DEFAULT_EXAMPLE_IMAGE;
-            if (uploadPlaceholder) uploadPlaceholder.classList.remove('hidden');
-            if (uploadPreviewState) uploadPreviewState.classList.add('hidden');
-            updateDropzonePreview('');
-            if (profileInput) profileInput.value = '';
-            updatePreview();
-            showToast('Custom photo removed! Example photo restored.');
-        });
-    }
+    // ─────────────────────────────────────────────────────────
+    // INTERACTIVE CANVAS IMAGE EDITOR LOGIC (Figma Node 914-9419)
+    // ─────────────────────────────────────────────────────────
+    let imgEditorState = {
+        img: null,
+        scale: 100,
+        offsetX: 0,
+        offsetY: 0,
+        isDragging: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        initialOffsetX: 0,
+        initialOffsetY: 0
+    };
 
-    function cropImageWithBarrelMask(imageSrc, width, height, callback) {
+    const editorCanvas = document.getElementById('img-editor-canvas');
+    const scaleSlider = document.getElementById('img-scale-slider');
+    const uploadChangeBtn = document.getElementById('upload-change-btn');
+
+    function initImageEditor(imageSrc) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
-            try {
-                // 4x super-sampling scale factor for razor-sharp, non-pixelated anti-aliased curves
-                const scaleFactor = 4;
-                const canvas = document.createElement('canvas');
-                canvas.width = width * scaleFactor;   // 600px
-                canvas.height = height * scaleFactor; // 596px
-                const ctx = canvas.getContext('2d');
+            imgEditorState.img = img;
+            imgEditorState.scale = 100;
+            imgEditorState.offsetX = 0;
+            imgEditorState.offsetY = 0;
+            if (scaleSlider) scaleSlider.value = 100;
 
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = 'high';
+            if (uploadPlaceholder) uploadPlaceholder.classList.add('hidden');
+            if (uploadPreviewState) uploadPreviewState.classList.remove('hidden');
+            if (dropzone) dropzone.classList.add('has-preview');
 
-                const svgPath = "M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z";
-                
-                ctx.save();
-                ctx.scale((width * scaleFactor) / 115, (height * scaleFactor) / 114);
-                const path2d = new Path2D(svgPath);
-                ctx.clip(path2d);
-
-                const scale = Math.max(115 / img.width, 114 / img.height);
-                const nw = img.width * scale;
-                const nh = img.height * scale;
-                const nx = (115 - nw) / 2;
-                const ny = (114 - nh) / 2;
-
-                ctx.drawImage(img, nx, ny, nw, nh);
-                ctx.restore();
-
-                callback(canvas.toDataURL('image/png'));
-            } catch (e) {
-                console.warn('Canvas crop fallback:', e);
-                callback(imageSrc);
-            }
+            renderEditorCanvas();
         };
-        img.onerror = () => callback(imageSrc);
         img.src = imageSrc;
+    }
+
+    function renderEditorCanvas() {
+        if (!editorCanvas || !imgEditorState.img) return;
+
+        const scaleFactor = 4;
+        editorCanvas.width = 115 * scaleFactor;
+        editorCanvas.height = 114 * scaleFactor;
+
+        const ctx = editorCanvas.getContext('2d');
+        ctx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        const svgPath = "M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z";
+
+        ctx.save();
+        ctx.scale((115 * scaleFactor) / 115, (114 * scaleFactor) / 114);
+        const path2d = new Path2D(svgPath);
+        ctx.clip(path2d);
+
+        const img = imgEditorState.img;
+        const baseScale = Math.max(115 / img.width, 114 / img.height);
+        const userScale = imgEditorState.scale / 100;
+        const totalScale = baseScale * userScale;
+
+        const drawW = img.width * totalScale;
+        const drawH = img.height * totalScale;
+
+        const baseCenterX = (115 - drawW) / 2;
+        const baseCenterY = (114 - drawH) / 2;
+
+        const drawX = baseCenterX + imgEditorState.offsetX;
+        const drawY = baseCenterY + imgEditorState.offsetY;
+
+        ctx.drawImage(img, drawX, drawY, drawW, drawH);
+        ctx.restore();
+
+        exportEditorImage();
+    }
+
+    function exportEditorImage() {
+        if (!imgEditorState.img) return;
+
+        const width = 150;
+        const height = 149;
+        const scaleFactor = 4;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scaleFactor;
+        canvas.height = height * scaleFactor;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        const svgPath = "M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z";
+
+        ctx.save();
+        ctx.scale((width * scaleFactor) / 115, (height * scaleFactor) / 114);
+        const path2d = new Path2D(svgPath);
+        ctx.clip(path2d);
+
+        const img = imgEditorState.img;
+        const baseScale = Math.max(115 / img.width, 114 / img.height);
+        const userScale = imgEditorState.scale / 100;
+        const totalScale = baseScale * userScale;
+
+        const drawW = img.width * totalScale;
+        const drawH = img.height * totalScale;
+
+        const baseCenterX = (115 - drawW) / 2;
+        const baseCenterY = (114 - drawH) / 2;
+
+        const drawX = baseCenterX + imgEditorState.offsetX;
+        const drawY = baseCenterY + imgEditorState.offsetY;
+
+        ctx.drawImage(img, drawX, drawY, drawW, drawH);
+        ctx.restore();
+
+        const croppedDataUrl = canvas.toDataURL('image/png');
+        currentProfileImageData = croppedDataUrl;
+        isCustomUpload = true;
+        currentFormData['profileImage'] = croppedDataUrl;
+        updatePreview();
+    }
+
+    if (editorCanvas) {
+        editorCanvas.addEventListener('mousedown', (e) => {
+            imgEditorState.isDragging = true;
+            imgEditorState.dragStartX = e.clientX;
+            imgEditorState.dragStartY = e.clientY;
+            imgEditorState.initialOffsetX = imgEditorState.offsetX;
+            imgEditorState.initialOffsetY = imgEditorState.offsetY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!imgEditorState.isDragging) return;
+            const dx = e.clientX - imgEditorState.dragStartX;
+            const dy = e.clientY - imgEditorState.dragStartY;
+            imgEditorState.offsetX = imgEditorState.initialOffsetX + dx;
+            imgEditorState.offsetY = imgEditorState.initialOffsetY + dy;
+            renderEditorCanvas();
+        });
+
+        window.addEventListener('mouseup', () => {
+            imgEditorState.isDragging = false;
+        });
+    }
+
+    if (scaleSlider) {
+        scaleSlider.addEventListener('input', () => {
+            imgEditorState.scale = parseFloat(scaleSlider.value);
+            renderEditorCanvas();
+        });
+    }
+
+    if (uploadChangeBtn && profileInput) {
+        uploadChangeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileInput.click();
+        });
     }
 
     function handleProfileImage(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            cropImageWithBarrelMask(e.target.result, 150, 149, (croppedDataUrl) => {
-                isCustomUpload = true;
-                currentProfileImageData = croppedDataUrl;
-                currentFormData['profileImage'] = croppedDataUrl;
-                updateDropzonePreview(croppedDataUrl);
-                if (uploadPlaceholder) uploadPlaceholder.classList.add('hidden');
-                if (uploadPreviewState) uploadPreviewState.classList.remove('hidden');
-                updatePreview();
-                showToast('Custom profile image uploaded!');
-            });
+            initImageEditor(e.target.result);
+            showToast('Custom profile image uploaded!');
         };
         reader.readAsDataURL(file);
     }
@@ -257,16 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const entitySelect = document.getElementById('entity');
-    if (entitySelect) {
-        entitySelect.addEventListener('change', () => {
-            if (entitySelect.value) {
-                entitySelect.classList.add('has-value');
-            } else {
-                entitySelect.classList.remove('has-value');
-            }
-        });
-    }
+
 
     // ─────────────────────────────────────────────────────────
     // 3. LOGO TILE SELECTOR
@@ -291,9 +394,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ─────────────────────────────────────────────────────────
+    // 3.5 TEMPLATE SELECTOR (SUPPORTING BOTH TEMPLATE BAR & SIDEBAR)
+    // ─────────────────────────────────────────────────────────
+    function selectTemplate(idx, silent = false) {
+        if (isNaN(idx) || !templates || !templates[idx]) return;
+        activeTemplate = templates[idx];
+
+        // Update sidebar buttons
+        document.querySelectorAll('.template-btn').forEach(btn => {
+            const btnIdx = parseInt(btn.getAttribute('data-template-index'), 10);
+            if (btnIdx === idx) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Update top template bar tabs
+        document.querySelectorAll('.template-bar-tab').forEach(tab => {
+            const tabIdx = parseInt(tab.getAttribute('data-template-index'), 10);
+            if (tabIdx === idx) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+
+        updatePreview();
+        if (!silent) {
+            showToast(`Switched to ${activeTemplate.name}`);
+        }
+    }
+
+    document.querySelectorAll('.template-btn, .template-bar-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-template-index'), 10);
+            selectTemplate(idx);
+        });
+    });
+
+    // ─────────────────────────────────────────────────────────
     // 4. FORM → LIVE PREVIEW (real-time update)
     // ─────────────────────────────────────────────────────────
-    const fieldIds = ['name', 'title', 'mobile', 'location', 'email', 'linkedin', 'entity'];
+    const fieldIds = ['name', 'title', 'mobile', 'location', 'email', 'linkedin'];
 
     // Initialise currentFormData from defaults
     fieldIds.forEach(id => {
@@ -302,15 +445,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Also include non-field template tokens (logos off by default)
-    currentFormData.primaryColor   = '#05262B';
+    currentFormData.primaryColor = '#05262B';
     currentFormData.secondaryColor = '#AA9269';
-    currentFormData.website        = 'www.collabera.com';
+    currentFormData.website = 'www.collabera.com';
     currentFormData.showProfileImage = (profileToggle && profileToggle.checked) ? 'true' : 'false';
-    currentFormData.profileImage   = DEFAULT_EXAMPLE_IMAGE;
-    currentFormData.showPcBadge    = 'false';
-    currentFormData.showCertBadge  = 'false';
-    currentFormData.showWomenWp    = 'false';
-    currentFormData.showWlab       = 'false';
+    currentFormData.profileImage = DEFAULT_EXAMPLE_IMAGE;
+    currentFormData.showPcBadge = 'false';
+    currentFormData.showCertBadge = 'false';
+    currentFormData.showWomenWp = 'false';
+    currentFormData.showWlab = 'false';
 
     // Attach input listeners (mobile handled separately above for validation)
     fieldIds.forEach(id => {
@@ -365,6 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. UPDATE PREVIEW IFRAME
     // ─────────────────────────────────────────────────────────
     function updatePreview() {
+        if (!activeTemplate || !activeTemplate.html || !previewFrame) return;
         const compiled = compileTemplate(activeTemplate.html, currentFormData);
 
         const doc = `<!DOCTYPE html>
@@ -378,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
         html, body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow: visible;
             background: #ffffff;
             font-family: 'Red Hat Display', Arial, sans-serif;
         }
@@ -396,19 +540,118 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 </html>`;
 
-        // Write directly into the iframe document for maximum compatibility
-        const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(doc);
-        iframeDoc.close();
+        // Write directly using contentDocument with srcdoc fallback
+        try {
+            const iframeDoc = previewFrame.contentDocument || (previewFrame.contentWindow && previewFrame.contentWindow.document);
+            if (iframeDoc) {
+                iframeDoc.open();
+                iframeDoc.write(doc);
+                iframeDoc.close();
+            } else {
+                previewFrame.srcdoc = doc;
+            }
+        } catch (e) {
+            try { previewFrame.srcdoc = doc; } catch (err) { }
+        }
 
-        // Auto-resize to content — eliminates scrollbar
-        previewFrame.style.height = '0';
-        requestAnimationFrame(() => {
-            const h = previewFrame.contentDocument.documentElement.scrollHeight
-                   || previewFrame.contentDocument.body.scrollHeight;
-            previewFrame.style.height = (h + 4) + 'px';
+        const measureAndResize = () => {
+            try {
+                const iDoc = previewFrame.contentDocument || (previewFrame.contentWindow && previewFrame.contentWindow.document);
+                if (iDoc && iDoc.body) {
+                    const table = iDoc.querySelector('table');
+                    let w = table ? Math.ceil(table.getBoundingClientRect().width) : 540;
+                    let h = table ? Math.ceil(table.getBoundingClientRect().height) : 220;
+
+                    if (!w || w < 300) w = iDoc.body.scrollWidth || 540;
+                    if (!h || h < 100) h = iDoc.body.scrollHeight || iDoc.documentElement.scrollHeight || 220;
+
+                    previewFrame.style.width = Math.max(w + 4, 540) + 'px';
+                    previewFrame.style.height = Math.max(h + 4, 180) + 'px';
+                }
+            } catch (e) { }
+        };
+
+        measureAndResize();
+        requestAnimationFrame(measureAndResize);
+        setTimeout(measureAndResize, 100);
+        setTimeout(measureAndResize, 300);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // 6.5 SVG TO PNG CONVERTER FOR EMAIL COMPATIBILITY (OUTLOOK / GMAIL)
+    // ─────────────────────────────────────────────────────────
+    async function getHtmlWithPngImages(rawHtml) {
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.top = '-9999px';
+        tempDiv.style.opacity = '0';
+        tempDiv.style.pointerEvents = 'none';
+        tempDiv.innerHTML = rawHtml;
+        document.body.appendChild(tempDiv);
+
+        const images = Array.from(tempDiv.querySelectorAll('img'));
+        const svgImages = images.filter(img => {
+            const src = img.getAttribute('src') || '';
+            return src.includes('.svg') || src.includes('image/svg+xml');
         });
+
+        if (svgImages.length > 0) {
+            const promises = svgImages.map(img => {
+                return new Promise((resolve) => {
+                    const src = img.getAttribute('src');
+                    const loader = new Image();
+                    loader.crossOrigin = 'anonymous';
+
+                    loader.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            let w = (parseInt(img.getAttribute('width'), 10) || img.naturalWidth || loader.naturalWidth || 100);
+                            let h = (parseInt(img.getAttribute('height'), 10) || img.naturalHeight || loader.naturalHeight || 100);
+
+                            // Aspect ratio protection: enforce natural SVG ratio to prevent stretching
+                            if (loader.naturalWidth && loader.naturalHeight) {
+                                const naturalRatio = loader.naturalWidth / loader.naturalHeight;
+                                h = Math.round(w / naturalRatio);
+                                img.setAttribute('height', h);
+                            }
+
+                            // Scale up 2x for Retina sharp rendering in Outlook/Gmail
+                            canvas.width = w * 2;
+                            canvas.height = h * 2;
+
+                            const ctx = canvas.getContext('2d');
+                            ctx.imageSmoothingEnabled = true;
+                            ctx.imageSmoothingQuality = 'high';
+                            ctx.drawImage(loader, 0, 0, w * 2, h * 2);
+
+                            const pngDataUrl = canvas.toDataURL('image/png');
+                            img.setAttribute('src', pngDataUrl);
+                            img.setAttribute('width', w);
+                            img.setAttribute('height', h);
+                            img.style.width = w + 'px';
+                            img.style.height = h + 'px';
+                        } catch (e) {
+                            console.warn('SVG to PNG conversion error:', e);
+                        }
+                        resolve();
+                    };
+
+                    loader.onerror = () => {
+                        console.warn('Failed to load SVG for conversion:', src);
+                        resolve();
+                    };
+
+                    loader.src = src;
+                });
+            });
+
+            await Promise.all(promises);
+        }
+
+        const resultHtml = tempDiv.innerHTML;
+        document.body.removeChild(tempDiv);
+        return resultHtml;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -416,7 +659,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────────────────
     async function copySignature() {
         try {
-            const html = compileTemplate(activeTemplate.html, currentFormData);
+            const compiledRaw = compileTemplate(activeTemplate.html, currentFormData);
+            const html = await getHtmlWithPngImages(compiledRaw);
 
             // 1. Primary Method: Modern Async Clipboard API with ONLY 'text/html' Blob.
             // Writing ONLY 'text/html' prevents Gmail signature editor from rendering both
@@ -475,12 +719,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────────────────
     // 8. EXPORT / DOWNLOAD HTML
     // ─────────────────────────────────────────────────────────
-    function downloadHTML() {
-        const html = compileTemplate(activeTemplate.html, currentFormData);
+    async function downloadHTML() {
+        const compiledRaw = compileTemplate(activeTemplate.html, currentFormData);
+        const html = await getHtmlWithPngImages(compiledRaw);
         const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
         a.download = `collabera-signature-${(currentFormData.name || 'user').toLowerCase().replace(/\s+/g, '-')}.html`;
         document.body.appendChild(a);
         a.click();
@@ -524,14 +769,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────────────────
     // EVENT LISTENERS
     // ─────────────────────────────────────────────────────────
-    copyBtn.addEventListener('click', copySignature);
-    downloadBtn.addEventListener('click', downloadHTML);
-    applyBtn.addEventListener('click', copySignature);
+    if (copyBtn) copyBtn.addEventListener('click', copySignature);
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadHTML);
+    if (applyBtn) applyBtn.addEventListener('click', copySignature);
 
     // ─────────────────────────────────────────────────────────
     // INIT
     // ─────────────────────────────────────────────────────────
     loadFromURL();
+    activeTemplate = (typeof templates !== 'undefined' && templates.length > 0) ? templates[0] : null;
+    selectTemplate(0, true);
     updatePreview();
 
 });

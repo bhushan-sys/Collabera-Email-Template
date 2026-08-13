@@ -1,0 +1,23 @@
+{
+  "name": "email-temp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhushan-sys/Collabera-Email-Template.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bhushan-sys/Collabera-Email-Template/issues"
+  },
+  "homepage": "https://github.com/bhushan-sys/Collabera-Email-Template#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0"
+  }
+}

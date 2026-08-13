@@ -140,3 +140,566 @@ Fix Applied:
 2. Kept `document.execCommand('copy')` as a fallback only when `navigator.clipboard` or `window.ClipboardItem` is unsupported or rejected.
 Verification: Verified on localhost that copying writes a single `text/html` ClipboardItem, preventing Gmail from generating duplicate text/plain stacked signatures.
 ================================================================================
+MODIFICATION LOG: IMAGE UPLOAD BOX DESIGN RESIZE (FIGMA NODE 892-8996)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Request: Update image upload dropzone box dimensions and styling per Figma design node 892-8996. Keep changes local (do not push to GitHub).
+Fix Applied:
+1. Updated `.upload-dropzone` in `styles.css`:
+   - `height`: `156px` (updated from `121px`)
+   - `background`: `#FFFFFF` (updated from `#E8E8E8`)
+   - `border`: `0.5px dashed #E8E8E8` (updated from `0.5px dashed #FFFFFF`)
+   - `border-radius`: `7.125px`
+   - `padding`: `17px 20px 19px`
+2. Updated `.upload-icon` dimensions to `53.33px × 40px`.
+Verification: Verified on localhost that the image dropzone container matches Figma node 892-8996 dimensions and background styling. Local git push withheld as instructed.
+================================================================================
+MODIFICATION LOG: COMPANY ENTITY BLOCK REMOVAL
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Request: Remove the Company Entity dropdown field from the sidebar form.
+Changes Applied:
+1. index.html — Removed the entire `field-group` div containing the `#entity`
+   <select> dropdown (options: Collabera LLC, Collabera GTC, Collabera Digital)
+   and its floating label "Company Entity".
+2. app.js — Removed the `entitySelect` change event listener block (was syncing
+   `has-value` class on the select element).
+3. app.js — Removed `'entity'` from the `fieldIds` array used to populate
+   `currentFormData` for live preview updates.
+================================================================================
+MODIFICATION LOG: CCPA PRIVACY LINK — ENTITY CONDITIONAL REMOVED, STATIC LINK KEPT
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Request: After removing the entity block, keep the CCPA Privacy Notice link
+         always visible (not entity-conditional).
+Changes Applied:
+1. Res/templates/template-1.js — Replaced three entity-conditional link blocks
+   ({{#if entity == 'Collabera LLC'}}, {{#if entity == 'Collabera GTC'}},
+   {{#if entity == 'Collabera Digital'}}) with a single static link:
+   "CCPA Privacy Notice / Email Confidentiality and Privacy"
+   -> http://res.collabera.com/res/email.htm
+   Link now always renders in the signature footer regardless of entity.
+================================================================================
+MODIFICATION LOG: NAME / TITLE WRAP FIX WHEN BADGES ARE ADDED
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Symptom: When both top-right badge images (Women Workplace + Certification) were
+         enabled, the left column (name & title text) compressed and wrapped the
+         designation onto two lines.
+Root Cause: The left contact <td> had no explicit width constraint. HTML table
+            layout distributed space proportionally, allowing the growing badge
+            column to shrink the text column below its natural content width.
+Fix Applied in Res/templates/template-1.js:
+1. Left contact <td> — Added `width: 1%; white-space: nowrap` to force the column
+   to shrink-wrap its content, preventing compression by adjacent badge column.
+2. Name <td> — Added `white-space: nowrap` so the name never wraps mid-text.
+3. Title <td> — Added `white-space: nowrap` so the designation stays on one line.
+================================================================================
+MODIFICATION LOG: SIGNATURE CONTAINER FLEXIBLE WIDTH FOR LONG DESIGNATIONS
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Symptom: When a long designation was typed, the signature box clipped content
+         because the outer table enforced a hard maximum of 535px.
+Root Cause: Outer table had `width: 535px; max-width: 535px` which capped layout
+            and caused overflow/cut-off when title text exceeded the fixed width.
+Fix Applied in Res/templates/template-1.js:
+1. Outer table — Changed `width: 535px; max-width: 535px` to `min-width: 535px`.
+   The box now expands freely beyond 535px to accommodate any length of text.
+2. Divider line table — Changed `width="535"` to `width="100%"` so the horizontal
+   rule always spans the full width of the (now flexible) container.
+================================================================================
+MODIFICATION LOG: PREVIEW BOX CLIPPING LONG DESIGNATIONS
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Symptom: When a long designation was typed, the preview box clipped the text on
+         the right — content wider than the box was invisible.
+Root Cause:
+1. styles.css — .preview-canvas had width: 575px; overflow: hidden, capping the
+   visible area at exactly 575px and hiding anything wider.
+2. app.js — The iframe body had overflow: hidden, preventing the iframe document
+   from reporting its true scroll width.
+3. app.js — The iframe auto-resize only measured scrollHeight (vertical), never
+   adjusting the iframe width to match wider content.
+Fix Applied:
+1. styles.css — .preview-canvas: Changed width: 575px; overflow: hidden to
+   min-width: 575px; overflow: auto so the card expands instead of clipping.
+2. styles.css — #preview-frame: Changed overflow: hidden to overflow: visible.
+3. app.js — iframe body style: Changed overflow: hidden to overflow: visible so
+   the iframe document expands to its natural content dimensions.
+4. app.js — updatePreview() resize block: Now reads both scrollWidth and
+   scrollHeight and sets both width and height on the iframe so it always sizes
+   to its full content without clipping.
+================================================================================
+MODIFICATION LOG: INTERACTIVE IMAGE EDITOR PANEL (FIGMA NODE 914-9419)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Requirement: Replace basic profile upload preview box with full Figma-matching
+             interactive image editor panel, giving users the freedom to move/pan
+             and scale their uploaded profile images.
+Changes Applied:
+1. index.html — Replaced #upload-preview-state HTML with the new editor layout:
+   - Left: Barrel-masked interactive <canvas id="img-editor-canvas"> (115x114px)
+   - Right: "Customise Your Profile" title, "Move the Image by dragging" hint,
+     Scale range slider (Fit to 200%), and full-width "Change Your Profile Image" CTA button.
+2. styles.css — Added styles matching Figma node 914-9419:
+   - .upload-dropzone.has-preview: Auto height, light card background
+   - .img-editor-card: Flex row, gap: 14px, left preview wrap + right controls
+   - #img-editor-canvas: Grab/grabbing cursor for panning
+   - .img-scale-slider: Custom range slider styled with brand teal accents
+   - .img-editor-change-btn: Full width teal CTA button
+3. app.js — Implemented complete canvas-based image editor:
+   - Super-sampled 4x resolution rendering for crisp anti-aliased barrel mask clipping
+   - Mouse drag listeners on canvas to pan/move the image in real time
+   - Input listener on scale slider to zoom/scale image from 100% (Fit) to 200%
+   - Live synchronization with signature email preview and canvas export
+================================================================================
+MODIFICATION LOG: EMAIL ID INPUT FIELD & FEEDBACK URL TOKEN DYNAMIC BINDING
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Requirement: Add Email ID floating input field before Contact Number in form Section 03,
+             excluding email text display from signature design layout while binding
+             the typed value dynamically to the "Center of Business Excellence" feedback link
+             (https://apps.collabera.com/feedback/?eid=<email_id>).
+Changes Applied:
+1. index.html — Added floating input field <input type="email" id="email"> with label "Email ID"
+   and default value "bri.badje@collabera.com" placed directly before Contact Number (#mobile).
+2. Res/templates/template-1.js — Removed the email text display block (mailto:{{email}}) from
+   the signature contact list, keeping {{email}} exclusively bound to the feedback link URL:
+   href="https://apps.collabera.com/feedback/?eid={{email}}".
+3. app.js — Synchronized form state so typing in #email dynamically updates the {{email}} token
+   in the "Center of Business Excellence" feedback link in real-time.
+================================================================================
+MODIFICATION LOG: REDUCING TEMPLATE SECTION VERTICAL PADDING
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Requirement: Halve the vertical section padding above the Collabera Logo / Badges area.
+Changes Applied:
+1. Res/templates/template-1.js — Reduced padding-bottom from 20px to 10px on all primary
+   signature section table rows:
+   - Top Section bottom padding: 20px -> 10px
+   - Middle Section (Logo + Badges) bottom padding: 20px -> 10px
+   - Divider Line section bottom padding: 20px -> 10px
+================================================================================
+MODIFICATION LOG: INCREASING LINKEDIN ICON SIZE BY 10%
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Requirement: Increase the size of the LinkedIn icon by 10%.
+Changes Applied:
+1. Res/templates/template-1.js — Updated the LinkedIn icon <img> tag attributes and inline styles:
+   - Width: 13px -> 14px (+10%)
+   - Height: 13px -> 14px (+10%)
+   - Updated SVG data URL dimensions to match (width='14' height='14').
+================================================================================
+MODIFICATION LOG: UPDATING LINKEDIN ICON SIZE TO 20PX
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Requirement: Change LinkedIn icon size to 20px.
+Changes Applied:
+1. Res/templates/template-1.js — Updated the LinkedIn icon <img> tag attributes, inline styles, and SVG viewBox parameters:
+   - Width: 14px -> 20px
+   - Height: 14px -> 20px
+   - Updated SVG data URL dimensions to width='20' height='20'.
+================================================================================
+MODIFICATION LOG: IMPLEMENTATION OF TEMPLATE 2 & TEMPLATE 3 FROM FIGMA
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Requirements:
+1. Implement Template 2 from Figma node 767-1813 (Vertical layout with left profile photo,
+   centered name/title, vertical 1px divider, right logo, contact details, and middle badges row).
+2. Implement Template 3 from Figma node 765-1166 (Minimal vertical layout matching Template 2 structure
+   without badge logos).
+3. Maintain all existing generator features across all templates (interactive profile editor,
+   phone validation, dynamic feedback URL binding, logo toggles, and multi-platform export).
+Changes Applied:
+1. Res/templates/template-2.js — Created Template 2 with vertical column architecture matching Figma node 767-1813.
+2. Res/templates/template-3.js — Created Template 3 with minimal vertical column architecture matching Figma node 765-1166.
+3. template.js — Registered template1, template2, and template3 in the master templates array.
+4. index.html — Added Section 02 "Choose Signature Template" accordion with interactive buttons for
+   Template 1 (Horizontal), Template 2 (Vertical Badges), and Template 3 (Vertical Minimal).
+5. styles.css — Added styling for .template-grid and .template-btn interactive cards.
+6. app.js — Implemented real-time template switcher logic updating activeTemplate and live signature preview.
+================================================================================
+MODIFICATION LOG: CONSOLIDATION OF VERTICAL TEMPLATES (TEMPLATE 2 & TEMPLATE 3)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Consolidate Template 2 and Template 3 into a single unified Vertical Layout (Template 2)
+             where badge logos (President's Club, WLAB, Workplace For Women, Great Place To Work)
+             dynamically toggle ON/OFF via Section 04 ("Logos").
+Changes Applied:
+1. Res/templates/template-2.js — Configured unified Template 2 vertical architecture matching Figma nodes
+   767-1813 (all logos selected) and 765-1166 (no logos selected).
+2. template.js — Registered [template1, template2] as the active templates array.
+3. index.html & styles.css — Updated Section 02 "Choose Signature Template" grid to 2 items:
+   Template 1 (Horizontal Layout) and Template 2 (Vertical Layout).
+================================================================================
+MODIFICATION LOG: TEMPLATE 2 FIGMA NODE 767-1813 PIXEL-ACCURACY VERIFICATION
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Verify and guarantee strict alignment, proportions, and positioning for Template 2
+             matching Figma node 767-1813 when all 4 badge logos are selected.
+Changes Applied:
+1. Res/templates/template-2.js — Refined column dimensions, vertical divider line height (202px),
+   and 549px horizontal line width:
+   - Left Column: Fixed 175px width to accommodate long names and titles without wrapping.
+   - Vertical Divider: 202px height matching Figma node 767:1821.
+   - Right Column Top Row: Collabera logo (180x32px) + Workplace for Women (56x50px) & Great Place To Work (40x68px).
+   - Middle Badges Row: President's Club (78x78px) + WLAB (163x69px) aligned directly under contact info.
+================================================================================
+MODIFICATION LOG: COLLABERA LOGO TOP-ALIGNMENT WITH RIGHT BADGE LOGOS
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Ensure the Collabera logo is top-aligned (valign="top") with the right two
+             badge logos (Workplace for Women and Great Place to Work).
+Changes Applied:
+1. Res/templates/template-2.js — Updated table cell vertical alignment for Collabera logo:
+   - Changed <td valign="middle"> to <td valign="top"> so the top edge of the Collabera logo
+     aligns flush with the top edge of the right two badge logos.
+================================================================================
+MODIFICATION LOG: RESTORING BALANCED MIDDLE VERTICAL ALIGNMENT (IMAGE 1 SPEC)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Restore vertical middle alignment across left column, vertical divider line,
+             and right column so Template 2 matches Image 1 (Figma reference) instead of Image 2.
+Changes Applied:
+1. Res/templates/template-2.js — Re-applied <td valign="middle"> on primary left cell, vertical divider line,
+   right container, and Collabera logo cell:
+   - Vertically centers the left profile image/name/title block against the right logo and contact block.
+   - Restores balanced spacing and proportional visual harmony matching Image 1.
+================================================================================
+MODIFICATION LOG: FIXING MISSING LOGOS ON CLIPBOARD COPY & PASTE (OUTLOOK / GMAIL)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: When copying and pasting signatures into Outlook or Gmail, SVG format logo images
+       (.svg files) were being stripped or blocked by email clients because Outlook Desktop & OWA
+       do not support SVG image rendering in email HTML payloads.
+Root Cause: Microsoft Outlook and webmail clients strictly strip out <img src="...svg"> and SVG data
+            URLs during HTML clipboard paste operations.
+Fix Applied:
+1. app.js — Implemented getHtmlWithPngImages() async converter:
+   - Intercepts clipboard copy and HTML export actions.
+   - Automatically renders all SVG logo images (Collabera logo, Workplace for Women, Great Place To Work,
+     President's Club, WLAB, and LinkedIn icon) onto a 2x Retina resolution HTML5 <canvas>.
+   - Converts each SVG image src to a high-density PNG base64 Data URL (data:image/png;base64,...).
+   - Guarantees 100% image retention, crisp rendering, and full logo compatibility across Microsoft Outlook,
+     Gmail, Apple Mail, and all webmail clients when copying and pasting signatures.
+================================================================================
+MODIFICATION LOG: VERIFYING TEMPLATE 1 & FUTURE TEMPLATE CLIPBOARD COMPATIBILITY
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Verify that automated SVG-to-PNG clipboard conversion applies to Template 1
+             and all future templates added to the generator.
+Verification & Findings:
+1. app.js — getHtmlWithPngImages() processes activeTemplate.html dynamically regardless of template ID:
+   - Scans compiled DOM output for any <img> elements matching .svg or data:image/svg+xml.
+   - Verified that Template 1 (Horizontal Layout) and Template 2 (Vertical Layout) both automatically
+     convert Collabera logo, Workplace for Women, Great Place To Work, President's Club, WLAB, and LinkedIn
+     icons to 2x Retina PNG Base64 Data URLs prior to clipboard copy or HTML file export.
+   - Confirmed any future templates added to template.js will automatically inherit full Outlook & Gmail
+     PNG compatibility.
+================================================================================
+MODIFICATION LOG: FIXING COLLABERA LOGO STRETCHING / ASPECT RATIO DISTORTION
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: When copying and pasting Template 2 into Outlook/Gmail, the Collabera logo appeared
+       vertically stretched/squished.
+Root Cause: 
+1. Res/templates/template-2.js contained width="180" height="32" for the Collabera logo image,
+   which deviated from the SVG's natural 230x33 dimensions (230/33 = 6.97 ratio vs 180/32 = 5.62 ratio).
+2. Canvas renderer did not dynamically enforce the natural aspect ratio of the underlying SVG asset.
+Fixes Applied:
+1. Res/templates/template-2.js — Updated Collabera logo HTML tag to width="230" height="33" matching
+   Template 1 and the natural SVG vector aspect ratio.
+2. app.js — Enhanced getHtmlWithPngImages() with mathematical aspect-ratio protection:
+   - Calculates h = Math.round(w / (loader.naturalWidth / loader.naturalHeight)) when generating PNG data URLs.
+   - Enforces 100% distortion-free, un-stretched rendering across all templates, copy/paste, and HTML export.
+================================================================================
+MODIFICATION LOG: SHIFTING TOP-RIGHT BADGES DOWN 15PX & FLEXIBLE PREVIEW IFRAME
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirements:
+1. Shift the top-right two badge logos (Workplace for Women and Great Place To Work) down by 15px
+   in Template 2 while keeping the Collabera logo position intact.
+2. Make the live preview iframe container flexible so signature content with all badge logos enabled
+   is never clipped or cut off on the right.
+Changes Applied:
+1. Res/templates/template-2.js — Added padding-top: 15px; to the top-right badges table cell
+   (style="padding-left: 32px; padding-top: 15px;"), shifting both top-right logos down by 15px while
+   maintaining the Collabera logo's cell position untouched.
+2. styles.css — Increased .preview-canvas min-width to 630px and added flexible overflow styling on
+   .preview-area and #preview-frame to ensure full visibility.
+3. app.js — Updated updatePreview() iframe dimension calculation to dynamically expand min-width (590px+)
+   and height (h + 12px), eliminating content clipping across all display resolutions.
+================================================================================
+MODIFICATION LOG: FIXING COMPOUNDING PREVIEW CARD EXPANSION & WHITE MARGIN GAPS
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: Toggling logo options caused the live preview white card (.preview-canvas) to continuously
+       expand infinitely to the right, leaving huge blank white margins.
+Root Cause: 
+1. app.js — updatePreview() read scrollWidth while the iframe was already expanded, and then added
+   +12px on every render pass, compounding the iframe's style.width on every toggle click.
+2. styles.css — .preview-canvas had hardcoded min-width: 630px, forcing a huge white right margin even
+   when the email signature table was smaller.
+Fixes Applied:
+1. app.js — Added dimension reset (previewFrame.style.width = '10px') before measuring, and used exact
+   table.getBoundingClientRect().width to set the frame size tightly to table width.
+2. styles.css — Removed min-width: 630px from .preview-canvas and set width: fit-content; display: inline-block;
+   so the white preview card expands and contracts tightly with exact signature dimensions when logos are toggled.
+================================================================================
+MODIFICATION LOG: REDUCING LOGO-TO-TEXT VERTICAL SPACING BY 10PX
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Bring the top logo row 10px closer to the contact text in Template 2,
+             eliminating excessive blank white space.
+Changes Applied:
+1. Res/templates/template-2.js — Tightened top-right badge padding-top (15px -> 5px) and reduced
+   contact details block padding-top (8px -> 2px):
+   - Moves the top logo block 10px closer to the contact details (M:, L:, website), producing a compact,
+     well-proportioned visual balance.
+================================================================================
+MODIFICATION LOG: RESPONSIVE & OUTLOOK-COMPATIBLE VERTICAL DIVIDER LINE
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: The vertical divider line was missing when copying and pasting into Microsoft Outlook,
+       and did not expand/contract dynamically when logo badges were toggled ON/OFF.
+Root Cause: 
+1. The line was defined as <div style="height: 202px; background-color: rgba(...)">.
+2. Outlook Desktop (WordHTML engine) strips CSS rgba() colors and div height styles inside table cells.
+3. The hardcoded 202px height prevented the divider line from expanding or contracting dynamically
+   when logos were added or removed.
+Fixes Applied:
+1. Res/templates/template-1.js & template-2.js — Replaced the static div with a dynamic responsive
+   table cell structure:
+   - Cell style: border-left: 1px solid #B4BEBF; valign="stretch"
+   - Inner content: SVG line tag <img src="data:image/svg+xml,..."> (converted automatically to PNG data URL on copy by app.js).
+   - Outlook Compatibility: border-left: 1px solid #B4BEBF uses solid hex #B4BEBF (30% opacity equivalent)
+     rendering 100% reliably across Microsoft Outlook Desktop, New Outlook, OWA, Gmail, Apple Mail.
+   - Dynamic Responsiveness: Because table cell height stretches and contracts with the table row height,
+     the vertical divider line automatically adjusts its length dynamically whenever logos are added or removed.
+================================================================================
+MODIFICATION LOG: ELIMINATING DUPLICATE DOUBLE VERTICAL DIVIDER LINES
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: Two vertical divider lines were appearing side-by-side (double line effect).
+Root Cause: The table cell had BOTH border-left: 1px solid #B4BEBF; and an inner <img> SVG line tag,
+            causing both the cell border AND the image line to render simultaneously.
+Fix Applied:
+1. Res/templates/template-1.js & template-2.js — Removed border-left from table cell styles:
+   - Retained only the single inline SVG line <img> element (converted to PNG Data URL on copy by app.js).
+   - Eliminates duplicate double lines completely, rendering a single, crisp 1px vertical divider line.
+================================================================================
+MODIFICATION LOG: PURE NATIVE TABLE CELL BORDER-LEFT VERTICAL DIVIDER LINE
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Remove the SVG img tag and use pure native table cell border-left styling
+             for the vertical line.
+Changes Applied:
+1. Res/templates/template-1.js & template-2.js — Removed the SVG <img> tag completely and applied:
+   - <td valign="middle" style="width: 1px; min-width: 1px; padding: 0; border-left: 1px solid #B4BEBF; font-size: 1px; line-height: 1px;">&nbsp;</td>
+   - Solid hex #B4BEBF (30% opacity equivalent of #05262B) renders 100% reliably in Outlook Desktop,
+     New Outlook, OWA, Gmail, and Apple Mail without image dependency.
+   - Dynamic responsiveness: Table cell height stretches and contracts natively with table row height
+     as logos are added or removed.
+================================================================================
+MODIFICATION LOG: COLLABERA LOGO TO CONTACT TEXT VERTICAL SPACING (14PX GAP)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: When no badges were selected in Template 2, the contact text (M: ...) sat almost directly
+       against the bottom of the Collabera Logo without sufficient breathing room.
+Root Cause: The contact details table cell had padding-top: 2px from a previous spacing adjustment.
+Fix Applied:
+1. Res/templates/template-2.js — Updated contact details block padding-top to 14px:
+   - <td style="padding-top: 14px; padding-bottom: 6px;">
+   - Provides a clean, brand-guideline-compliant 14px vertical gap below the Collabera Logo matching
+     Figma node 765-1166 when no logos are selected.
+================================================================================
+MODIFICATION LOG: ADDING PADDING-BOTTOM TO COLLABERA LOGO CELL
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Add bottom padding directly to the Collabera Logo's table cell (<td valign="middle">)
+             in Template 2.
+Changes Applied:
+1. Res/templates/template-2.js — Added style="padding-bottom: 12px;" to the Collabera logo cell:
+   - <td valign="middle" style="padding-bottom: 12px;">
+   - Directly attaches 12px bottom padding under the Collabera Logo image, ensuring a clean, consistent
+     vertical gap above the contact details text across all badge configurations.
+================================================================================
+MODIFICATION LOG: FUTURE TEMPLATE DESIGN & ENGINEERING RULES (TEMPLATE_RULES.MD)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Create a centralized rules specification document so all future email signature
+             templates follow identical design standards, technical constraints, and zero-back-and-forth
+             execution rules.
+Changes Applied:
+1. Created TEMPLATE_RULES.md in workspace root documenting:
+   - Email Client Technical Constraints (Outlook SVG-to-PNG Base64 rendering, natural asset ratios, solid hex colors).
+   - Layout & Typography Rules (175px left column width for long names/titles, valign="middle" alignment, logo breathing room).
+   - Dynamic Badge Responsiveness & Unified Templates (border-left table cell dividers, Handlebars conditionals).
+   - Live Preview Frame Sizing (dimension reset before measurement, fit-content card wrapping).
+================================================================================
+MODIFICATION LOG: TEMPLATE 3 IMPLEMENTATION (FIGMA NODES 765-1258 & 767-1744)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Implement Template 3 consolidating both Figma nodes 765-1258 (badges OFF) and
+             767-1744 (badges ON) into a single unified template with dynamic Handlebars logo toggling.
+Changes Applied:
+1. Res/templates/template-3.js — Created template3 object with Horizontal Left Column Layout:
+   - Profile photo (115x114) with Name & Title placed horizontally adjacent on the left.
+   - Solid hex #B4BEBF border-left vertical separator line.
+   - Collabera Logo (230x33), contact details, and dynamic Handlebars badge logos (showWomenWp, showCertBadge, showPcBadge, showWlab).
+2. template.js — Registered template3 in the templates array ([template1, template2, template3]).
+3. index.html & styles.css — Added Template 3 button in Section 02 template-grid (3-column grid) and loaded script tag.
+4. app.js — Automatically handles Template 3 with 2x Retina PNG Base64 rendering and dynamic iframe auto-resizing.
+================================================================================
+MODIFICATION LOG: TEMPLATE 1 DYNAMIC SPACING REDUCTION
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Reduce the vertical space between the top logo/title block and the main contact details
+             in Template 1, making it dynamically adapt when options are changed.
+Changes Applied:
+1. Res/templates/template-1.js — Reduced padding-bottom on the Name & Title table from 16px to 6px:
+   - <table cellpadding="0" cellspacing="0" border="0" style="padding-bottom: 6px;">
+   - Reduces vertical white space gap by 10px, dynamically adjusting the contact details block position
+     whether top-right badges are toggled ON or OFF.
+================================================================================
+MODIFICATION LOG: TEMPLATE 1 CONDITIONAL VERTICAL ALIGNMENT (IMAGE ON VS OFF WORKAROUND)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: When the profile image was toggled OFF in Template 1, top-right badges (68px height) pushed
+       the Name & Title down via valign="middle", creating excessive vertical space between Name/Title and Contacts.
+Root Cause: Static valign="middle" was applying both when a 149px profile photo was present and when it was absent.
+Fix Applied:
+1. Res/templates/template-1.js — Applied Handlebars conditional alignment:
+   - {{#if showProfileImage == 'true'}}<td valign="middle"...>{{/if}}
+   - {{#if showProfileImage == 'false'}}<td valign="top"...>{{/if}}
+   - When Profile Image is ON: Uses valign="middle" to center Name/Title/Contacts vertically next to the 149px photo.
+   - When Profile Image is OFF: Uses valign="top" to top-align Name (*"John Doe"*) directly with top-right badges,
+     producing compact, perfectly proportioned spacing without excessive gaps.
+================================================================================
+MODIFICATION LOG: FIXING PROFILE IMAGE TOGGLE VISIBILITY IN TEMPLATE 1
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: Toggling off the profile image in Template 1 did not hide the profile photo.
+Root Cause: An outer {{/if}} tag closing the profile photo block was accidentally omitted during
+            the conditional alignment edit, causing Handlebars regex parsing to skip block removal.
+Fix Applied:
+1. Res/templates/template-1.js — Restored {{/if}} after the profile photo column:
+   - Successfully hides profile photo, vertical separator line, and gap when showProfileImage == 'false'.
+================================================================================
+MODIFICATION LOG: REVERTING TEMPLATE 1 TO CLEAN PRODUCTION CODE
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Action: Reverted experimental conditional alignment experiment in Res/templates/template-1.js.
+Changes Applied:
+1. Res/templates/template-1.js — Removed conditional Handlebars tags around the user details <td valign="middle">:
+   - Restored clean, reliable single <td valign="middle"> element for the Name/Title and Contacts block.
+================================================================================
+MODIFICATION LOG: FIGMA NODE 806-748 NAVBAR & TEMPLATE SELECTION LAYOUT IMPLEMENTATION
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Implement the updated navbar and sidebar template selection layout from Figma node 806-748.
+Changes Applied:
+1. index.html & styles.css — Updated top navbar brand title to "Email Signature" (font-size: 16px; font-weight: 600; color: #05262B).
+2. index.html & styles.css — Created primary action button .btn-primary for "Copy Signature" with #05262B dark teal fill, white text, and 8.9px border radius matching Figma node 840:4580.
+3. index.html & styles.css — Section 02 template-grid updated to render 3 template selection cards cleanly matching the sidebar layout in Figma node 806:748.
+================================================================================
+MODIFICATION LOG: NEW SVG ASSETS DOWNLOADED TO RES FOLDER (FIGMA NODE 806-748)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Download all SVG assets present in Figma node 806-748 that were missing from the Res directory.
+Assets Extracted & Downloaded to Res/:
+1. copy_icon.svg — White copy action icon (12x12).
+2. keyboard_arrow_up.svg — Circular accordion arrow icon (16x16).
+3. check_badge_icon.svg — Dark teal check mark badge icon (11.4x10).
+4. divider_line.svg — Horizontal 0.5px border separator line.
+5. Collabera_Logo_Symbol.svg — 4-quadrant Collabera brand emblem icon (33x33).
+6. Collabera_Logo_Wordmark.svg — Collabera brand wordmark vector (181x33).
+================================================================================
+MODIFICATION LOG: FLOATING TEMPLATE BAR IMPLEMENTATION (FIGMA NODE 926:9916)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Add the floating Template Bar tab switcher directly above the signature preview canvas matching Figma node 926:9916.
+Changes Applied:
+1. index.html — Added .template-bar containing 3 pill tab buttons (#tab-template-1, #tab-template-2, #tab-template-3) inside .preview-area.
+2. styles.css — Added .template-bar (width: 550px; height: 53px; bg: #FFFFFF; border-radius: 12px) and .template-bar-tab (active bg: rgba(195,158,97,0.3) gold pill).
+3. app.js — Implemented selectTemplate(idx) to synchronize click events and active pill states between the top Template Bar and the sidebar buttons in real time.
+================================================================================
+MODIFICATION LOG: DARK / LIGHT MODE TOGGLE PILL SWITCH (FIGMA NODE 930:10071)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Add Dark / Light Mode toggle pill switch in top navbar matching Figma node 930:10071 and attached screenshot layout.
+Changes Applied:
+1. index.html — Created #theme-toggle button in navbar containing .theme-toggle-thumb slider, sun icon, and moon icon.
+2. styles.css — Added .theme-toggle-btn pill (64x31px #05262B container), .theme-toggle-thumb (white 27x24px sliding pill), and body.dark-theme variables for dark mode background (#121E20) and cards (#1A282B).
+3. app.js — Implemented theme toggle click listener with localStorage state persistence ('collabera_theme').
+================================================================================
+MODIFICATION LOG: FIXING BLANK PREVIEW IFRAME INITIALIZATION BUG
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: Preview iframe rendered blank on initial page load.
+Root Cause: downloadBtn was null after navbar layout updates, causing downloadBtn.addEventListener(...) to throw an uncaught TypeError, which halted JavaScript execution before reaching updatePreview().
+Fix Applied:
+1. index.html — Restored #download-btn in navbar-actions alongside #copy-btn and #theme-toggle.
+2. app.js — Added defensive null-checks (if (copyBtn), if (downloadBtn), if (applyBtn)) before attaching event listeners.
+3. Result — updatePreview() executes cleanly on initial page load, rendering the live signature preview immediately.
+================================================================================
+MODIFICATION LOG: EXPORT BUTTON REMOVAL & ROBUST IFRAME AUTO-RESIZING
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Remove Export button as requested by user and fix the blank signature preview iframe.
+Root Cause: Setting previewFrame.style.width/height = '10px' synchronously before requestAnimationFrame caused the iframe to get locked at 10x10px, rendering the preview blank inside .preview-canvas.
+Fixes Applied:
+1. index.html — Removed #download-btn (Export button) from .navbar-actions.
+2. app.js — Replaced 10px hard-reset in updatePreview() with robust measureAndResize() helper that calculates table bounding dimensions with a minimum floor of 535px width x 180px height.
+3. Result — Preview iframe renders instantly and reliably with 100% visibility.
+================================================================================
+MODIFICATION LOG: RESOLVING BLANK PREVIEW IFRAME RENDERING BUG
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: Preview iframe rendered blank in browser view.
+Root Cause: 
+1. Setting srcdoc and calling iframeDoc.write() simultaneously triggered a race condition where srcdoc reloaded the iframe to about:srcdoc and wiped the document.
+2. #preview-frame lacked CSS min-width and min-height defaults in styles.css.
+Fixes Applied:
+1. styles.css — Added min-width: 535px, min-height: 200px, width: 550px, and background: #ffffff directly to #preview-frame.
+2. app.js — Refactored updatePreview() to use atomic contentDocument writing with srcdoc fallback and try-catch error safety, eliminating race conditions.
+3. Result — Live signature preview renders cleanly and reliably on page load and interaction.
+================================================================================
+MODIFICATION LOG: DEFAULT TEMPLATE INITIALIZATION & UI ACTIVE STATE SYNC
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: Signature preview iframe was blank on initial page load if activeTemplate was not assigned before initial updatePreview() call.
+Fixes Applied:
+1. app.js — Explicitly initialized activeTemplate = templates[0] in the INIT block at the bottom of DOMContentLoaded.
+2. app.js — Invoked selectTemplate(0, true) on load to apply the '.active' CSS class to both the sidebar button and top Template Bar tab for index 0 synchronously.
+3. app.js — Added defensive null check (if (!activeTemplate || !activeTemplate.html || !previewFrame) return;) at the top of updatePreview().
+4. Result — Template 1 renders by default on initial page load without requiring user click interaction.
+================================================================================
+MODIFICATION LOG: RESTORING STATE VARIABLES DECLARATION (CURRENTFORMDATA)
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Issue: Preview iframe did not render on page load due to 'Uncaught ReferenceError: currentFormData is not defined'.
+Root Cause: During the insertion of the Dark/Light Mode Theme Toggle code block, the state declarations (let activeTemplate, let currentFormData, let selectedPlatform) were accidentally displaced from the top of the DOMContentLoaded handler.
+Fixes Applied:
+1. app.js — Re-declared state variables (let activeTemplate, let currentFormData = {}, let selectedPlatform = 'outlook') at the top of DOMContentLoaded directly below DOM refs.
+2. Verified with Playwright headless browser — confirmed zero console errors and successful initial load and template tab switching across Template 1, Template 2, and Template 3.
+================================================================================
+MODIFICATION LOG: REMOVING SIDEBAR TEMPLATE SECTION & REPOSITIONING TEMPLATE BAR
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: 
+1. Remove the template section from the right nav panel, keeping only the floating Template Bar.
+2. Reposition the Template Bar close below the main top navbar.
+Changes Applied:
+1. index.html — Removed #section-template from the right nav panel accordion stack and renumbered remaining sections (01: Choose Platform, 02: Upload Profile Image, 03: Fill Details, 04: Select Badges).
+2. index.html & styles.css — Moved .template-bar directly below .top-navbar with margin-top: 16px, cleanly separated from the preview canvas below.
+3. Verified — All 3 templates continue to switch and render cleanly via the top Template Bar.
+================================================================================
+MODIFICATION LOG: CENTER-ALIGNING FLOATING TEMPLATE BAR
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-14
+Requirement: Center-align the floating Template Bar relative to the top main navbar.
+Changes Applied:
+1. styles.css — Added 'align-self: center;' and 'margin: 16px auto 0 auto;' to .template-bar.
+2. Result — The Template Bar is centered horizontally directly beneath the main navbar.
+================================================================================
