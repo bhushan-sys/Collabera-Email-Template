@@ -172,26 +172,32 @@ document.addEventListener('DOMContentLoaded', () => {
         img.crossOrigin = 'anonymous';
         img.onload = () => {
             try {
+                // 4x super-sampling scale factor for razor-sharp, non-pixelated anti-aliased curves
+                const scaleFactor = 4;
                 const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
+                canvas.width = width * scaleFactor;   // 600px
+                canvas.height = height * scaleFactor; // 596px
                 const ctx = canvas.getContext('2d');
+
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
 
                 const svgPath = "M63.5184 0.0135664C78.3754 0.201684 93.3218 2.38289 108.17 6.64355C112.6 21.8135 114.809 37.5861 114.891 52.0951H114.895C114.93 55.1998 114.962 58.3047 115 61.4091L114.997 61.4094C114.942 76.6771 112.747 92.0467 108.315 107.312C93.3767 111.623 77.8575 113.818 63.5184 113.986V114H51.1323V113.982C36.8901 113.783 21.5007 111.588 6.68277 107.312C2.54068 93.0458 0.352333 78.6885 0.0393889 64.4085H0V52.0951H0.00434208C0.0870449 37.5861 2.29621 21.8135 6.72619 6.64355C21.4926 2.40634 36.3561 0.225842 51.1323 0.016958V0H63.5184V0.0135664Z";
                 
                 ctx.save();
-                ctx.scale(width / 115, height / 114);
+                ctx.scale((width * scaleFactor) / 115, (height * scaleFactor) / 114);
                 const path2d = new Path2D(svgPath);
                 ctx.clip(path2d);
-                ctx.restore();
 
-                const scale = Math.max(width / img.width, height / img.height);
+                const scale = Math.max(115 / img.width, 114 / img.height);
                 const nw = img.width * scale;
                 const nh = img.height * scale;
-                const nx = (width - nw) / 2;
-                const ny = (height - nh) / 2;
+                const nx = (115 - nw) / 2;
+                const ny = (114 - nh) / 2;
 
                 ctx.drawImage(img, nx, ny, nw, nh);
+                ctx.restore();
+
                 callback(canvas.toDataURL('image/png'));
             } catch (e) {
                 console.warn('Canvas crop fallback:', e);
@@ -412,7 +418,24 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const html = compileTemplate(activeTemplate.html, currentFormData);
 
-            // Create temporary container element for clean selection copy
+            // 1. Primary Method: Modern Async Clipboard API with ONLY 'text/html' Blob.
+            // Writing ONLY 'text/html' prevents Gmail signature editor from rendering both
+            // text/html and text/plain representations (which causes stacked duplicate signatures).
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            'text/html': new Blob([html], { type: 'text/html' })
+                        })
+                    ]);
+                    showToast('Signature copied! Paste directly into Gmail or Outlook.');
+                    return;
+                } catch (clipErr) {
+                    console.warn('Async Clipboard API failed, trying execCommand fallback:', clipErr);
+                }
+            }
+
+            // 2. Fallback Method: Selection Range + execCommand('copy') for legacy browsers
             const container = document.createElement('div');
             container.style.position = 'fixed';
             container.style.left = '-9999px';
@@ -422,14 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = html;
             document.body.appendChild(container);
 
-            // Select container contents
             const range = document.createRange();
             range.selectNodeContents(container);
             const selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
 
-            // Execute copy command - creates native HTML clipboard payload
             let successful = false;
             try {
                 successful = document.execCommand('copy');
@@ -441,14 +462,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.removeChild(container);
 
             if (successful) {
-                showToast('Signature copied! Paste directly into Gmail or Outlook.');
-            } else if (navigator.clipboard && window.ClipboardItem) {
-                // Fallback to Clipboard API with text/html Blob only (prevents Gmail double-paste)
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        'text/html': new Blob([html], { type: 'text/html' })
-                    })
-                ]);
                 showToast('Signature copied! Paste directly into Gmail or Outlook.');
             } else {
                 showToast('Could not copy — try "Export HTML" instead.');

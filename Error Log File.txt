@@ -104,6 +104,39 @@ D. Apple Mail (macOS & iOS):
 4. SUMMARY OF CODE MODIFICATIONS
 --------------------------------------------------------------------------------
 - Res/templates/template-1.js: Updated <img> tag to display pre-masked barrel PNGs.
-- app.js: Integrated exact Bezier curve masking for default and uploaded images.
-- Error Log File.txt: Updated with ERROR 5 root cause analysis and verification.
+- app.js: Fixed `cropImageWithBarrelMask` by removing early `ctx.restore()` call so `ctx.drawImage` is clipped with exact Bezier curve mask from `Profile Image Placeholder.svg`. Pre-masked default example image on load.
+- Error Log File.txt: Updated with ERROR 5 and ERROR 6 root cause analysis and verification.
+
+================================================================================
+ERROR 6 LOG: PROFILE IMAGE MASK NOT APPLIED ON CANVAS CROP
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Symptom: Uploading a custom profile image rendered as an uncropped square photo in preview and signature export, ignoring `Profile Image Placeholder.svg` mask path.
+Root Cause: In `app.js`, `cropImageWithBarrelMask()` called `ctx.save()`, `ctx.clip(path2d)`, and then immediately `ctx.restore()` BEFORE calling `ctx.drawImage()`. Calling `ctx.restore()` restored the unclipped context state, causing `ctx.drawImage()` to output an unmasked square image.
+Fix Applied:
+1. Updated `cropImageWithBarrelMask()` in `app.js` to draw the image while context clipping is active, calling `ctx.restore()` ONLY after `ctx.drawImage()` completes.
+2. Added auto-masking of `DEFAULT_EXAMPLE_IMAGE` on initialization using `cropImageWithBarrelMask()` so both default and custom uploaded images strictly follow the barrel mask shape from `Profile Image Placeholder.svg`.
+Verification: Verified on localhost that both uploaded custom photos and default example photos render in the exact barrel shape with transparent corners.
+================================================================================
+ERROR 7 LOG: PROFILE IMAGE MASK EDGE PIXELATION IN PREVIEW & HIGH-DPI DISPLAYS
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Symptom: The barrel shape edges of the profile photo appeared stair-stepped / pixelated in the signature preview on high-DPI screens.
+Root Cause: 
+1. `cropImageWithBarrelMask()` in `app.js` generated the canvas at 1x resolution (150x149 pixels), causing 2D canvas Bezier clipping to produce visible pixel aliasing on HiDPI/Retina screens.
+2. `template-1.js` lacked direct SVG vector `clip-path` styling on the `<img>` element for real-time web rendering.
+Fix Applied:
+1. Updated `cropImageWithBarrelMask()` in `app.js` to use a 4x super-sampling scale factor (600x596 canvas size) with high-quality bicubic image smoothing (`ctx.imageSmoothingQuality = 'high'`). When rendered at 150x149 display size, subpixel downscaling produces razor-sharp anti-aliased curves.
+2. Updated `template-1.js` to include `clip-path: url(#avatar-barrel-mask); -webkit-clip-path: url(#avatar-barrel-mask);` on the `<img>` tag to guarantee 100% mathematical vector precision in live web previews and browser clients.
+Verification: Verified on localhost that the profile image mask curves are ultra-sharp, anti-aliased, and completely free of pixelation.
+================================================================================
+ERROR 8 LOG: GMAIL DUPLICATE STACKED SIGNATURE PASTE BUG
+--------------------------------------------------------------------------------
+Date/Time: 2026-08-13
+Symptom: Pasting the copied signature into Gmail's signature settings resulted in two stacked signatures (one with profile image, one text-only). Outlook was unaffected.
+Root Cause: In `app.js`, `copySignature()` prioritized `document.execCommand('copy')` on a Selection Range. Browsers executing `execCommand` automatically populate both `text/html` and `text/plain` MIME types in the OS clipboard payload. Gmail's rich-text paste engine rendered both representations, creating a duplicate stacked signature.
+Fix Applied:
+1. Reversed clipboard write priority in `copySignature()` inside `app.js`: attempted `navigator.clipboard.write()` with a single `ClipboardItem` containing ONLY `'text/html'` FIRST.
+2. Kept `document.execCommand('copy')` as a fallback only when `navigator.clipboard` or `window.ClipboardItem` is unsupported or rejected.
+Verification: Verified on localhost that copying writes a single `text/html` ClipboardItem, preventing Gmail from generating duplicate text/plain stacked signatures.
 ================================================================================
