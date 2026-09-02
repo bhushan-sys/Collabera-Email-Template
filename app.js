@@ -472,9 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updatePreview();
-        if (!silent) {
-            showToast(`Switched to ${activeTemplate.name}`);
-        }
     }
 
     document.querySelectorAll('.template-btn, .template-bar-tab').forEach(btn => {
