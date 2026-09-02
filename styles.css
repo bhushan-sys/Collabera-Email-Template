@@ -15,8 +15,8 @@
     --white: #FFFFFF;
     --text-dark: #171717;
     --text-brand: #05262B;
-    --text-muted: #B9B9B9;
-    --text-subdued: #2E2E2E;
+    --text-muted: #282828;
+    --text-subdued: #282828;
 
     /* Panel */
     --panel-bg: rgba(249, 236, 216, 0.30);
@@ -69,7 +69,60 @@ body {
     background-color: var(--bg-canvas);
     color: var(--text-dark);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    cursor: none;
+}
+
+/* Hide default cursor on interactive elements */
+a,
+button,
+input,
+select,
+textarea,
+.template-btn,
+.platform-btn,
+.logo-tile,
+.accordion-header {
+    cursor: none !important;
+}
+
+/* Custom Animated Cursor */
+.cursor-primitive {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    color: #0B4048;
+    z-index: 2147483647;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.cursor-primitive svg {
+    width: 100%;
+    height: 100%;
+}
+
+.cursor-follow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #0B4048;
+    color: var(--white);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 2147483646;
+    pointer-events: none;
+    transform: translate(0, 0);
+    opacity: 0;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+
+.cursor-follow.visible {
+    opacity: 1;
 }
 
 button {
@@ -187,6 +240,29 @@ select {
     border-color: #B0B0B0;
 }
 
+.nav-help-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6.5px 12px;
+    border: 1px solid #E8E8E8;
+    border-radius: 8.9px;
+    background: #FFFFFF;
+    color: var(--text-brand, #05262B);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Red Hat Display', sans-serif;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.nav-help-btn:hover {
+    background: #F8F8F8;
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 /* ── Theme Switcher Pill (Figma node 930:10071) ── */
 .theme-toggle-btn {
     position: relative;
@@ -278,6 +354,7 @@ body.dark-theme .accordion-section {
 
 /* Floating Template Bar (Figma node 926:9916) - Positioned and center-aligned below main top navbar */
 .template-bar {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -292,6 +369,32 @@ body.dark-theme .accordion-section {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     flex-shrink: 0;
     box-sizing: border-box;
+    transition: opacity var(--transition-fast), filter var(--transition-fast);
+}
+
+.template-bar-indicator {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 30px;
+    background: rgba(195, 158, 97, 0.3);
+    border-radius: 6px;
+    transform: translateY(-50%);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    /* Hidden until JS initializes position */
+}
+
+body.dark-theme .template-bar-indicator {
+    background: rgba(195, 158, 97, 0.4);
+}
+
+.template-bar.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(100%);
 }
 
 /* ── Preview Area ── */
@@ -308,6 +411,8 @@ body.dark-theme .accordion-section {
 }
 
 .template-bar-tab {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -323,13 +428,18 @@ body.dark-theme .accordion-section {
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
-    transition: background var(--transition-fast), color var(--transition-fast), font-weight var(--transition-fast);
+    transition: color var(--transition-fast), font-weight var(--transition-fast);
 }
 
 .template-bar-tab.active {
-    background: rgba(195, 158, 97, 0.3);
-    font-weight: 600;
+    background: transparent;
+    font-weight: 900;
     color: #05262B;
+}
+
+body.dark-theme .template-bar-tab.active {
+    background: transparent;
+    color: #FFFFFF;
 }
 
 .template-bar-tab:hover:not(.active) {
@@ -359,6 +469,170 @@ body.dark-theme .accordion-section {
     min-height: 200px;
 }
 
+/* ── Classic Outlook Instructions Overlay (Figma 1150-1737) ── */
+.outlook-instructions {
+    position: relative;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(46, 46, 46, 0.10);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 860px;
+    box-sizing: border-box;
+}
+
+.outlook-instructions.hidden {
+    display: none;
+}
+
+.instructions-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: #B4BEBF;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.instructions-close-btn:hover {
+    background: rgba(5, 38, 43, 0.06);
+    color: var(--dark-primary);
+}
+
+.instructions-title {
+    font-size: 32px;
+    line-height: 1.15;
+    color: var(--dark-primary);
+}
+
+.instructions-title-italic {
+    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.instructions-title-gold {
+    font-family: 'Red Hat Display', Arial, sans-serif;
+    font-weight: 500;
+    color: var(--gold-accent);
+}
+
+.instruction-step {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.step-badge {
+    flex-shrink: 0;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--gold-accent);
+    color: #FFFFFF;
+    font-family: 'Red Hat Display', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.step-text {
+    font-family: 'Red Hat Display', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-dark);
+    line-height: 1.4;
+}
+
+.step-text strong {
+    font-weight: 700;
+}
+
+.step-copy-btn {
+    background: var(--teal-primary);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    height: 28px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Red Hat Display', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    /* margin-left: auto; */
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.step-copy-btn:hover {
+    background: var(--teal-hover);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 8px rgba(31, 105, 117, 0.2);
+}
+
+.step-copy-btn:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 0 2px 4px rgba(31, 105, 117, 0.1);
+}
+
+.instructions-footer {
+    font-family: 'Red Hat Display', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-subdued);
+    line-height: 1.5;
+    padding-top: 4px;
+}
+
+/* Dark theme overrides for instructions overlay */
+body.dark-theme .outlook-instructions {
+    background: #1A282B;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .instructions-title {
+    color: #F1F5F9;
+}
+
+body.dark-theme .instructions-title-gold {
+    color: var(--gold-accent);
+}
+
+body.dark-theme .step-text {
+    color: #E2E8F0;
+}
+
+body.dark-theme .instructions-footer {
+    color: #94A3B8;
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .instructions-close-btn {
+    color: #64748B;
+}
+
+body.dark-theme .instructions-close-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #F1F5F9;
+}
+
+
 /* ═══════════════════════════════════════════════
    SIDE NAV PANEL
 ═══════════════════════════════════════════════ */
@@ -375,6 +649,13 @@ body.dark-theme .accordion-section {
     gap: 28px;
     overflow-y: auto;
     overflow-x: hidden;
+    transition: opacity var(--transition-fast), filter var(--transition-fast);
+}
+
+.side-nav.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(100%);
 }
 
 /* Slim scrollbar */
@@ -562,6 +843,7 @@ body.dark-theme .accordion-section {
    SECTION 01 — EMAIL PLATFORM SELECTOR
 ═══════════════════════════════════════════════ */
 .platform-grid {
+    position: relative;
     display: flex;
     gap: 54px;
     align-items: flex-start;
@@ -569,7 +851,26 @@ body.dark-theme .accordion-section {
     padding-top: 4px;
 }
 
+.platform-indicator {
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    top: 4px;
+    /* Matches padding-top of grid, but JS will set top precisely */
+    left: 0;
+    border-radius: 6px;
+    border: 0.61px solid var(--teal-primary);
+    background: var(--bg-canvas);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    /* Hidden until JS initializes position */
+}
+
 .platform-btn {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -603,9 +904,9 @@ body.dark-theme .accordion-section {
 }
 
 .platform-btn.active .platform-icon-wrap {
-    border-color: var(--teal-primary);
-    border-width: 0.61px;
-    background: var(--bg-canvas);
+    /* Background/border removed, indicator handles this now */
+    border-color: transparent;
+    background: transparent;
 }
 
 .platform-label {
@@ -998,7 +1299,25 @@ body.dark-theme .accordion-section {
     padding-right: 32px;
 }
 
-/* Phone validation error state */
+/* Verified Tick for Inputs (e.g. LinkedIn) */
+.verified-tick {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-input.verified {
+    padding-right: 36px;
+    border-color: #22C55E !important;
+    background-color: rgba(34, 197, 94, 0.03);
+}
+
+/* Validation error state */
 .floating-field--error,
 .field-input--error {
     border-color: #E53935 !important;
@@ -1223,7 +1542,7 @@ body.dark-theme .accordion-section {
     cursor: pointer;
     flex-shrink: 0;
     letter-spacing: 0;
-    transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1231,13 +1550,13 @@ body.dark-theme .accordion-section {
 
 .apply-btn:hover {
     background: var(--teal-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(39, 113, 124, 0.30);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(31, 105, 117, 0.2);
 }
 
 .apply-btn:active {
-    transform: translateY(0);
-    box-shadow: none;
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 2px 4px rgba(31, 105, 117, 0.1);
 }
 
 /* ═══════════════════════════════════════════════
@@ -1355,4 +1674,113 @@ body.dark-theme .accordion-section {
     border-color: var(--teal-primary, #1F6975);
     background: rgba(31, 105, 117, 0.08);
     color: var(--teal-primary, #1F6975);
+}
+
+/* ═══════════════════════════════════════════════
+   DRIVER.JS POPOVER OVERRIDES (Figma Designs)
+═══════════════════════════════════════════════ */
+div.driver-popover {
+    background-color: #FFFFFF !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    box-shadow: 0px 12px 32px rgba(0, 0, 0, 0.12) !important;
+    border: none !important;
+    font-family: 'Inter', sans-serif !important;
+    max-width: 360px !important;
+}
+
+div.driver-popover .driver-popover-title {
+    font-family: 'Red Hat Display', sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: var(--text-brand, #05262B) !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+}
+
+div.driver-popover .driver-popover-description {
+    font-family: 'Red Hat Display', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #475569 !important;
+    line-height: 1.5 !important;
+    margin-bottom: 24px !important;
+}
+
+div.driver-popover .driver-popover-close-btn {
+    top: 16px !important;
+    right: 16px !important;
+    color: #94A3B8 !important;
+    transition: color 0.2s !important;
+}
+
+div.driver-popover .driver-popover-close-btn:hover {
+    color: #05262B !important;
+}
+
+div.driver-popover .driver-popover-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+div.driver-popover .driver-popover-progress-text {
+    font-family: 'Red Hat Display', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #B9B9B9 !important;
+}
+
+div.driver-popover .driver-popover-navigation-btns {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+/* Base button styles */
+div.driver-popover .driver-popover-prev-btn,
+div.driver-popover .driver-popover-next-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 32px !important;
+    padding: 0 14px !important;
+    border-radius: 6px !important;
+    font-family: 'Red Hat Display', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    border: none !important;
+    text-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Active State (Next Button typically) */
+div.driver-popover .driver-popover-next-btn {
+    background: var(--teal-primary, #1F6975) !important;
+    color: #FFFFFF !important;
+}
+
+div.driver-popover .driver-popover-next-btn:hover {
+    background: #175059 !important;
+}
+
+/* Deactive/Secondary State (Prev button typically) */
+div.driver-popover .driver-popover-prev-btn {
+    background: #E8E8E8 !important;
+    color: #B9B9B9 !important;
+}
+
+div.driver-popover .driver-popover-prev-btn:hover {
+    background: var(--teal-primary, #1F6975) !important;
+    color: #FFFFFF !important;
+}
+
+/* Disabled State (when Prev is disabled on step 1) */
+div.driver-popover .driver-popover-prev-btn.driver-popover-btn-disabled,
+div.driver-popover .driver-popover-next-btn.driver-popover-btn-disabled {
+    background: #F8FAFC !important;
+    color: #CBD5E1 !important;
+    cursor: not-allowed !important;
 }

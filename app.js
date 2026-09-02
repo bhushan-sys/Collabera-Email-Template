@@ -32,9 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─────────────────────────────────────────────────────────
-    // 1. ACCORDION — collapse / expand sections
-    // ─────────────────────────────────────────────────────────
-    // 1. ACCORDION — collapse / expand sections
+    // 1. ACCORDION — collapse / expand sections (Exclusive Open)
     // ─────────────────────────────────────────────────────────
     document.querySelectorAll('.accordion-header').forEach(header => {
         header.addEventListener('click', (e) => {
@@ -46,33 +44,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const section = header.closest('.accordion-section');
             const isOpen = panel.classList.contains('open');
 
-            if (targetId === 'panel-profile') {
-                const profileToggle = document.getElementById('profile-toggle');
-                if (isOpen) {
-                    panel.classList.remove('open');
-                    header.setAttribute('aria-expanded', 'false');
-                    if (section) section.classList.remove('open');
-                    if (profileToggle) profileToggle.checked = false;
-                    currentFormData['showProfileImage'] = 'false';
-                } else {
-                    panel.classList.add('open');
-                    header.setAttribute('aria-expanded', 'true');
-                    if (section) section.classList.add('open');
-                    if (profileToggle) profileToggle.checked = true;
-                    currentFormData['showProfileImage'] = 'true';
-                }
-                updatePreview();
-                return;
-            }
+            // Close all sections first (except the permanently open platform section)
+            document.querySelectorAll('.accordion-section').forEach(sec => {
+                if (sec.id !== 'section-platform') sec.classList.remove('open')
+            });
+            document.querySelectorAll('.accordion-panel').forEach(pan => {
+                if (pan.id !== 'panel-platform') pan.classList.remove('open')
+            });
+            document.querySelectorAll('.accordion-header').forEach(hdr => {
+                if (hdr.getAttribute('data-target') !== 'panel-platform') hdr.setAttribute('aria-expanded', 'false')
+            });
 
-            if (isOpen) {
-                panel.classList.remove('open');
-                header.setAttribute('aria-expanded', 'false');
-                if (section) section.classList.remove('open');
-            } else {
+            const profileToggle = document.getElementById('profile-toggle');
+
+            if (!isOpen) {
+                // If it was closed, open it now
                 panel.classList.add('open');
                 header.setAttribute('aria-expanded', 'true');
                 if (section) section.classList.add('open');
+
+                if (targetId === 'panel-profile') {
+                    if (profileToggle) profileToggle.checked = true;
+                    currentFormData['showProfileImage'] = 'true';
+                    updatePreview();
+                }
+            } else if (targetId === 'panel-profile') {
+                // If the user explicitly clicked the already open profile section, it should close (already handled by the close-all above)
+                if (profileToggle) profileToggle.checked = false;
+                currentFormData['showProfileImage'] = 'false';
+                updatePreview();
             }
         });
     });
@@ -369,7 +369,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // LinkedIn Validation
+    const linkedinInput = document.getElementById('linkedin');
+    const linkedinError = document.getElementById('linkedin-error');
+    const linkedinTick = document.getElementById('linkedin-tick');
 
+    function validateLinkedIn(value) {
+        if (!value) return true; // Optional field
+        return /(https?:\/\/)?(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?/i.test(value);
+    }
+
+    if (linkedinInput) {
+        const linkedinWrap = linkedinInput.closest('.floating-field') || linkedinInput;
+
+        // Initial check for default value
+        if (linkedinInput.value && validateLinkedIn(linkedinInput.value)) {
+            linkedinInput.classList.add('verified');
+            if (linkedinTick) linkedinTick.style.display = 'flex';
+        }
+
+        linkedinInput.addEventListener('input', () => {
+            const value = linkedinInput.value.trim();
+            const valid = validateLinkedIn(value);
+
+            if (value && !valid) {
+                linkedinWrap.classList.add('floating-field--error');
+                if (linkedinError) linkedinError.classList.add('visible');
+                linkedinInput.classList.remove('verified');
+                if (linkedinTick) linkedinTick.style.display = 'none';
+            } else {
+                linkedinWrap.classList.remove('floating-field--error');
+                if (linkedinError) linkedinError.classList.remove('visible');
+
+                if (value && valid) {
+                    linkedinInput.classList.add('verified');
+                    if (linkedinTick) linkedinTick.style.display = 'flex';
+                } else {
+                    linkedinInput.classList.remove('verified');
+                    if (linkedinTick) linkedinTick.style.display = 'none';
+                }
+            }
+        });
+    }
 
     // ─────────────────────────────────────────────────────────
     // 3. LOGO TILE SELECTOR
@@ -411,14 +452,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Update top template bar tabs
+        let activeTabEl = null;
         document.querySelectorAll('.template-bar-tab').forEach(tab => {
             const tabIdx = parseInt(tab.getAttribute('data-template-index'), 10);
             if (tabIdx === idx) {
                 tab.classList.add('active');
+                activeTabEl = tab;
             } else {
                 tab.classList.remove('active');
             }
         });
+
+        // Update indicator position
+        const indicator = document.getElementById('template-bar-indicator');
+        if (indicator && activeTabEl) {
+            indicator.style.width = `${activeTabEl.offsetWidth}px`;
+            indicator.style.left = `${activeTabEl.offsetLeft}px`;
+            indicator.style.opacity = '1';
+        }
 
         updatePreview();
         if (!silent) {
@@ -462,6 +513,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) {
             el.addEventListener('input', () => {
                 currentFormData[id] = el.value;
+
+                // If this is the name field, update the cursor text
+                if (id === 'name') {
+                    const cursorFollow = document.getElementById('cursor-follow');
+                    if (cursorFollow) {
+                        const firstName = el.value.trim().split(' ')[0];
+                        cursorFollow.textContent = firstName ? firstName : 'Welcome';
+                    }
+                }
+
                 updatePreview();
             });
         }
@@ -655,12 +716,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─────────────────────────────────────────────────────────
+    // 6.6 SCALE SIGNATURE HTML TO MAX 400px WIDTH
+    // ─────────────────────────────────────────────────────────
+    function scaleSignatureHtml(html) {
+        const TARGET_WIDTH = 400;
+
+        // Detect the original min-width from the outermost table declaration
+        const minWidthMatch = html.match(/min-width:\s*(\d+)px/);
+        const originalWidth = minWidthMatch ? parseInt(minWidthMatch[1], 10) : 549;
+
+        if (originalWidth <= TARGET_WIDTH) return html; // No scaling needed
+
+        const scale = TARGET_WIDTH / originalWidth;
+
+        // CSS properties whose pixel values should be scaled
+        const scalableProps = new Set([
+            'width', 'height', 'min-width', 'max-width',
+            'padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',
+            'margin', 'margin-top', 'margin-bottom', 'margin-left', 'margin-right',
+            'font-size', 'line-height'
+        ]);
+
+        // 1. Scale pixel values inside style="..." attributes (single pass per attribute)
+        let scaled = html.replace(/style="([^"]*)"/gi, (fullMatch, styleContent) => {
+            const scaledStyle = styleContent.replace(
+                /([\w-]+)\s*:\s*(\d+(?:\.\d+)?)px/gi,
+                (propMatch, prop, val) => {
+                    if (!scalableProps.has(prop.toLowerCase())) return propMatch;
+                    const num = parseFloat(val);
+                    if (num <= 1) return propMatch; // Keep 1px hairlines unchanged
+                    return prop + ': ' + Math.round(num * scale) + 'px';
+                }
+            );
+            return 'style="' + scaledStyle + '"';
+        });
+
+        // 2. Scale standalone width="N" and height="N" HTML attributes
+        scaled = scaled.replace(/\b(width|height)="(\d+)"/gi, (match, attr, val) => {
+            const num = parseInt(val, 10);
+            if (num <= 1) return match;
+            return attr + '="' + Math.round(num * scale) + '"';
+        });
+
+        return scaled;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // 7. COPY TO CLIPBOARD
     // ─────────────────────────────────────────────────────────
     async function copySignature() {
         try {
             const compiledRaw = compileTemplate(activeTemplate.html, currentFormData);
-            const html = await getHtmlWithPngImages(compiledRaw);
+            const html = scaleSignatureHtml(await getHtmlWithPngImages(compiledRaw));
 
             // 1. Primary Method: Modern Async Clipboard API with ONLY 'text/html' Blob.
             // Writing ONLY 'text/html' prevents Gmail signature editor from rendering both
@@ -672,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             'text/html': new Blob([html], { type: 'text/html' })
                         })
                     ]);
-                    showToast('Signature copied! Paste directly into Gmail or Outlook.');
+                    showToast('Signature copied to clipboard!');
                     return;
                 } catch (clipErr) {
                     console.warn('Async Clipboard API failed, trying execCommand fallback:', clipErr);
@@ -706,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.removeChild(container);
 
             if (successful) {
-                showToast('Signature copied! Paste directly into Gmail or Outlook.');
+                showToast('Signature copied to clipboard!');
             } else {
                 showToast('Could not copy — try "Export HTML" instead.');
             }
@@ -721,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────────────────
     async function downloadHTML() {
         const compiledRaw = compileTemplate(activeTemplate.html, currentFormData);
-        const html = await getHtmlWithPngImages(compiledRaw);
+        const html = scaleSignatureHtml(await getHtmlWithPngImages(compiledRaw));
         const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -769,9 +876,170 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────────────────
     // EVENT LISTENERS
     // ─────────────────────────────────────────────────────────
-    if (copyBtn) copyBtn.addEventListener('click', copySignature);
+    const outlookInstructions = document.getElementById('outlook-instructions');
+    const instructionsCloseBtn = document.getElementById('instructions-close-btn');
+    const instructionsCopyBtn = document.getElementById('instructions-copy-btn');
+    const office365Instructions = document.getElementById('office365-instructions');
+    const office365CloseBtn = document.getElementById('office365-close-btn');
+    const office365CopyBtn = document.getElementById('office365-copy-btn');
+    const newOutlookInstructions = document.getElementById('new-outlook-instructions');
+    const newOutlookCloseBtn = document.getElementById('new-outlook-close-btn');
+    const newOutlookCopyBtn = document.getElementById('new-outlook-copy-btn');
+    const previewCanvas = document.querySelector('.preview-canvas');
+    const sideNav = document.querySelector('.side-nav');
+    const templateBar = document.querySelector('.template-bar');
+
+    function updatePlatformIndicator(activeBtn) {
+        const indicator = document.getElementById('platform-indicator');
+        if (indicator && activeBtn) {
+            // The icon wrap is a child inside the button. We align with it.
+            const iconWrap = activeBtn.querySelector('.platform-icon-wrap');
+            if (iconWrap) {
+                indicator.style.left = `${activeBtn.offsetLeft + iconWrap.offsetLeft}px`;
+                indicator.style.opacity = '1';
+            }
+        }
+    }
+
+    document.querySelectorAll('.platform-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedPlatform = btn.getAttribute('data-platform');
+
+            updatePlatformIndicator(btn);
+
+            // Auto-hide instructions if switching platforms
+            if (outlookInstructions) outlookInstructions.classList.add('hidden');
+            if (office365Instructions) office365Instructions.classList.add('hidden');
+            if (newOutlookInstructions) newOutlookInstructions.classList.add('hidden');
+            if (previewCanvas) previewCanvas.style.display = 'block';
+            if (sideNav) sideNav.classList.remove('disabled');
+            if (templateBar) templateBar.classList.remove('disabled');
+        });
+    });
+
+    // Initialize indicator on load
+    const activePlatformBtn = document.querySelector('.platform-btn.active');
+    if (activePlatformBtn) {
+        setTimeout(() => updatePlatformIndicator(activePlatformBtn), 50); // slight delay to ensure layout is ready
+    }
+
+    if (applyBtn) {
+        applyBtn.addEventListener('click', () => {
+            if (selectedPlatform === 'outlook' && outlookInstructions) {
+                if (previewCanvas) previewCanvas.style.display = 'none';
+                outlookInstructions.classList.remove('hidden');
+                if (sideNav) sideNav.classList.add('disabled');
+                if (templateBar) templateBar.classList.add('disabled');
+            } else if (selectedPlatform === 'office365' && office365Instructions) {
+                if (previewCanvas) previewCanvas.style.display = 'none';
+                office365Instructions.classList.remove('hidden');
+                if (sideNav) sideNav.classList.add('disabled');
+                if (templateBar) templateBar.classList.add('disabled');
+            } else if (selectedPlatform === 'new-outlook' && newOutlookInstructions) {
+                if (previewCanvas) previewCanvas.style.display = 'none';
+                newOutlookInstructions.classList.remove('hidden');
+                if (sideNav) sideNav.classList.add('disabled');
+                if (templateBar) templateBar.classList.add('disabled');
+            } else {
+                copySignature();
+            }
+        });
+    }
+
+    if (instructionsCopyBtn) {
+        instructionsCopyBtn.addEventListener('click', copySignature);
+    }
+    if (office365CopyBtn) {
+        office365CopyBtn.addEventListener('click', copySignature);
+    }
+    if (newOutlookCopyBtn) {
+        newOutlookCopyBtn.addEventListener('click', copySignature);
+    }
+
+    if (instructionsCloseBtn) {
+        instructionsCloseBtn.addEventListener('click', () => {
+            if (outlookInstructions) outlookInstructions.classList.add('hidden');
+            if (previewCanvas) previewCanvas.style.display = 'block';
+            if (sideNav) sideNav.classList.remove('disabled');
+            if (templateBar) templateBar.classList.remove('disabled');
+        });
+    }
+
+    if (office365CloseBtn) {
+        office365CloseBtn.addEventListener('click', () => {
+            if (office365Instructions) office365Instructions.classList.add('hidden');
+            if (previewCanvas) previewCanvas.style.display = 'block';
+            if (sideNav) sideNav.classList.remove('disabled');
+            if (templateBar) templateBar.classList.remove('disabled');
+        });
+    }
+
+    if (newOutlookCloseBtn) {
+        newOutlookCloseBtn.addEventListener('click', () => {
+            if (newOutlookInstructions) newOutlookInstructions.classList.add('hidden');
+            if (previewCanvas) previewCanvas.style.display = 'block';
+            if (sideNav) sideNav.classList.remove('disabled');
+            if (templateBar) templateBar.classList.remove('disabled');
+        });
+    }
+
     if (downloadBtn) downloadBtn.addEventListener('click', downloadHTML);
-    if (applyBtn) applyBtn.addEventListener('click', copySignature);
+
+    // ─────────────────────────────────────────────────────────
+    // CUSTOM ANIMATED CURSOR
+    // ─────────────────────────────────────────────────────────
+    const cursorPrimitive = document.getElementById('cursor-primitive');
+    const cursorFollow = document.getElementById('cursor-follow');
+
+    if (cursorPrimitive && cursorFollow) {
+        let mouseX = 0, mouseY = 0;
+        let followX = 0, followY = 0;
+        let isMoving = false;
+        let moveTimeout;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // Move arrow instantly (with slight offset so point is at the cursor)
+            cursorPrimitive.style.transform = `translate(${mouseX - 2}px, ${mouseY - 2}px)`;
+
+            // Show follower when moving
+            if (!isMoving) {
+                isMoving = true;
+                cursorFollow.classList.add('visible');
+            }
+
+            clearTimeout(moveTimeout);
+            moveTimeout = setTimeout(() => {
+                isMoving = false;
+                // Optional: hide follower when still, or keep it. Let's keep it visible.
+            }, 500);
+        });
+
+        // Animate follower smoothly
+        const animateFollower = () => {
+            // Offset follower down and right from cursor (sideOffset = 15, alignOffset = 5 roughly)
+            const targetX = mouseX + 15;
+            const targetY = mouseY + 15;
+
+            let distX = targetX - followX;
+            let distY = targetY - followY;
+
+            followX += distX * 0.15;
+            followY += distY * 0.15;
+
+            cursorFollow.style.transform = `translate(${followX}px, ${followY}px)`;
+
+            requestAnimationFrame(animateFollower);
+        };
+        animateFollower();
+
+        // Ensure follower is visible initially
+        setTimeout(() => cursorFollow.classList.add('visible'), 500);
+    }
 
     // ─────────────────────────────────────────────────────────
     // INIT
@@ -780,5 +1048,73 @@ document.addEventListener('DOMContentLoaded', () => {
     activeTemplate = (typeof templates !== 'undefined' && templates.length > 0) ? templates[0] : null;
     selectTemplate(0, true);
     updatePreview();
+
+    // ─────────────────────────────────────────────────────────
+    // FIRST-TIME USER TOUR & HELP BUTTON
+    // ─────────────────────────────────────────────────────────
+    const startTour = () => {
+        if (!window.driver || !window.driver.js) return; // Prevent error if CDN fails
+        const driverObj = window.driver.js.driver({
+            showProgress: true,
+            progressText: 'Step {{current}} of {{total}}',
+            animate: true,
+            steps: [
+                { popover: { title: 'Welcome!', description: 'Let us show you around the Collabera Email Signature Studio. We will help you create a brand-approved signature in seconds.', side: "center", align: 'start' } },
+                { element: '.template-bar', popover: { title: 'Signature Templates', description: 'Switch between different brand-approved templates here.', side: "bottom", align: 'start' } },
+                {
+                    element: '#section-platform',
+                    popover: { title: 'Email Platform', description: 'Select your email client so we can provide tailored instructions for applying the signature.', side: "left", align: 'start' },
+                    onHighlightStarted: () => {
+                        const sec = document.getElementById('section-platform');
+                        if (sec && !sec.classList.contains('open')) sec.querySelector('.accordion-header').click();
+                    }
+                },
+                {
+                    element: '#section-profile',
+                    popover: { title: 'Profile Image', description: 'You can optionally upload and crop your profile image here.', side: "left", align: 'start' },
+                    onHighlightStarted: () => {
+                        const sec = document.getElementById('section-profile');
+                        if (sec && !sec.classList.contains('open')) sec.querySelector('.accordion-header').click();
+                    }
+                },
+                {
+                    element: '#section-details',
+                    popover: { title: 'Your Details', description: 'Fill in your name, title, contact info, and socials. The signature updates automatically!', side: "left", align: 'start' },
+                    onHighlightStarted: () => {
+                        const sec = document.getElementById('section-details');
+                        if (sec && !sec.classList.contains('open')) sec.querySelector('.accordion-header').click();
+                    }
+                },
+                {
+                    element: '#section-logos',
+                    popover: { title: 'Company Logos', description: 'Toggle the brand and certification logos you want to display in your signature.', side: "left", align: 'start' },
+                    onHighlightStarted: () => {
+                        const sec = document.getElementById('section-logos');
+                        if (sec && !sec.classList.contains('open')) sec.querySelector('.accordion-header').click();
+                    }
+                },
+                { element: '.preview-area', popover: { title: 'Live Preview', description: 'See your signature change in real-time right here.', side: "top", align: 'center' } },
+                { element: '#apply-btn', popover: { title: 'Apply Signature', description: 'Once done, click here to get step-by-step instructions on how to copy and paste it into your email client.', side: "left", align: 'start' } }
+            ],
+            onDestroyStarted: () => {
+                localStorage.setItem('collabera_tour_completed', 'true');
+                driverObj.destroy();
+            }
+        });
+        driverObj.drive();
+    };
+
+    // Auto-start for first-time users
+    if (!localStorage.getItem('collabera_tour_completed')) {
+        setTimeout(startTour, 1000);
+    }
+
+    // Manual start via Help button
+    const helpBtn = document.getElementById('help-btn');
+    if (helpBtn) {
+        helpBtn.addEventListener('click', () => {
+            startTour();
+        });
+    }
 
 });

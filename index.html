@@ -13,9 +13,20 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&family=Red+Hat+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css" />
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
 </head>
 
 <body>
+    <!-- Custom Cursor -->
+    <div class="cursor-primitive" id="cursor-primitive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+            <path fill="currentColor"
+                d="M1.8 4.4 7 36.2c.3 1.8 2.6 2.3 3.6.8l3.9-5.7c1.7-2.5 4.5-4.1 7.5-4.3l6.9-.5c1.8-.1 2.5-2.4 1.1-3.5L5 2.5c-1.4-1.1-3.5 0-3.3 1.9Z" />
+        </svg>
+    </div>
+    <div class="cursor-follow" id="cursor-follow">Collaberan</div>
+
 
     <!-- Global SVG Defs for Masking (using Profile Image Placeholder.svg) -->
     <svg width="0" height="0" style="position: absolute; pointer-events: none;">
@@ -43,17 +54,20 @@
                     <span class="navbar-title">Email Signature</span>
                 </div>
                 <div class="navbar-actions">
-                    <button id="copy-btn" class="btn-primary" title="Copy signature to clipboard">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" />
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    <!-- Help Button for Onboarding Tour -->
+                    <button id="help-btn" class="nav-help-btn" title="Start Tour" aria-label="Start Tour">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
                         </svg>
-                        Copy Signature
+                        <span>Help</span>
                     </button>
                     <!-- Dark / Light Mode Toggle (Figma node 930:10071) -->
+                    <!-- Hiding this button for now per user request. To re-enable, remove style="display: none;" -->
                     <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Theme"
-                        aria-label="Toggle theme">
+                        aria-label="Toggle theme" style="display: none;">
                         <span class="theme-toggle-thumb"></span>
                         <span class="theme-toggle-icon icon-sun">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -81,6 +95,7 @@
 
             <!-- Floating Template Bar (Right below main navbar) -->
             <div class="template-bar">
+                <div class="template-bar-indicator" id="template-bar-indicator"></div>
                 <button class="template-bar-tab active" id="tab-template-1" data-template-index="0">Template 1</button>
                 <button class="template-bar-tab" id="tab-template-2" data-template-index="1">Template 2</button>
                 <button class="template-bar-tab" id="tab-template-3" data-template-index="2">Template 3</button>
@@ -90,6 +105,182 @@
             <div class="preview-area">
                 <div class="preview-canvas">
                     <iframe id="preview-frame" title="Email Signature Preview" scrolling="no"></iframe>
+                </div>
+
+                <!-- Classic Outlook Instructions Overlay (Figma node 1150-1737) -->
+                <div class="outlook-instructions hidden" id="outlook-instructions">
+                    <button class="instructions-close-btn" id="instructions-close-btn" title="Back to preview"
+                        aria-label="Close instructions">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+
+                    <p class="instructions-title">
+                        <span class="instructions-title-italic">Add This Signature to</span>
+                        <span class="instructions-title-gold"> Classic Outlook</span>
+                    </p>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">1</span>
+                        <span class="step-text">Copy the signature to the clipboard</span>
+                        <button class="step-copy-btn" id="instructions-copy-btn" title="Copy signature to clipboard">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <rect x="9" y="9" width="13" height="13" rx="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy Signature
+                        </button>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">2</span>
+                        <span class="step-text">Open Outlook and click <strong>New Email.</strong></span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">3</span>
+                        <span class="step-text">In the new message window, go to <strong>Signature &gt;
+                                Signatures</strong> on the Message tab the ribbon.</span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">4</span>
+                        <span class="step-text">Create a new signature by clicking <strong>New.</strong></span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">5</span>
+                        <span class="step-text">Paste <strong>(Ctrl + V/ Cmd + V)</strong> the copied signature into the
+                            <strong>Edit signature</strong> section.</span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">6</span>
+                        <span class="step-text">Click <strong>OK.</strong></span>
+                    </div>
+
+                    <p class="instructions-footer">
+                        Applies to Outlook for Windows 2024/2021/2019/2016/2013/2010 and the classic Outlook for Windows
+                        from the Microsoft 365 app suite.
+                    </p>
+                </div>
+
+                <!-- New Outlook Instructions Overlay (Figma node 1185-3222) -->
+                <div class="outlook-instructions new-outlook-instructions hidden" id="new-outlook-instructions">
+                    <button class="instructions-close-btn" id="new-outlook-close-btn" title="Back to preview"
+                        aria-label="Close instructions">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+
+                    <p class="instructions-title">
+                        <span class="instructions-title-italic">Add This Signature to</span>
+                        <span class="instructions-title-gold"> New Outlook</span>
+                    </p>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">1</span>
+                        <span class="step-text">Copy the signature to the clipboard</span>
+                        <button class="step-copy-btn" id="new-outlook-copy-btn" title="Copy signature to clipboard">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <rect x="9" y="9" width="13" height="13" rx="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy Signature
+                        </button>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">2</span>
+                        <span class="step-text">Open Outlook and click <strong>New Email.</strong></span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">3</span>
+                        <span class="step-text">In the new mail window, go to <strong>Message &gt; Signature &gt;
+                                Signatures.</strong></span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">4</span>
+                        <span class="step-text">Create a new signature by clicking <strong>Add
+                                Signature.</strong></span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">5</span>
+                        <span class="step-text">Paste <strong>(Ctrl + V/ Cmd + V)</strong> the copied signature into the
+                            <strong>Edit signature</strong> section.</span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">6</span>
+                        <span class="step-text">Click <strong>Save.</strong></span>
+                    </div>
+                </div>
+
+                <!-- Office 365 / Web Outlook Instructions Overlay (Figma node 1159-3152) -->
+                <div class="outlook-instructions office365-instructions hidden" id="office365-instructions">
+                    <button class="instructions-close-btn" id="office365-close-btn" title="Back to preview"
+                        aria-label="Close instructions">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+
+                    <p class="instructions-title">
+                        <span class="instructions-title-italic">Add This Signature to</span>
+                        <span class="instructions-title-gold"> Web Outlook</span>
+                    </p>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">1</span>
+                        <span class="step-text">Copy the signature to the clipboard</span>
+                        <button class="step-copy-btn" id="office365-copy-btn" title="Copy signature to clipboard">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <rect x="9" y="9" width="13" height="13" rx="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy Signature
+                        </button>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">2</span>
+                        <span class="step-text">Go to the <a
+                                href="https://outlook.cloud.microsoft/mail/options/accounts-category/signatures-subcategory"
+                                target="_blank"
+                                style="color: var(--teal-primary); text-decoration: underline;">Signature Settings</a>
+                            in Outlook on the web <strong>(Settings &gt; Account &gt; Signatures).</strong></span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">3</span>
+                        <span class="step-text">Click <strong>New signature</strong> and enter a name for your
+                            signature.</span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">4</span>
+                        <span class="step-text">Paste <strong>(Ctrl + V/ Cmd + V)</strong> the copied signature into the
+                            signature editor area.</span>
+                    </div>
+
+                    <div class="instruction-step">
+                        <span class="step-badge">5</span>
+                        <span class="step-text">Click <strong>Save.</strong></span>
+                    </div>
                 </div>
             </div>
 
@@ -104,20 +295,16 @@
 
                 <!-- Section 01: Choose Email Platform -->
                 <div class="accordion-section open" id="section-platform">
-                    <button class="accordion-header" data-target="panel-platform" aria-expanded="true">
+                    <div class="accordion-header" data-target="panel-platform" aria-expanded="true"
+                        style="cursor: default;">
                         <div class="accordion-label">
                             <span class="accordion-num">01</span>
                             <span class="accordion-title-text">Choose Email Platform</span>
                         </div>
-                        <div class="chevron-circle">
-                            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2.5">
-                                <polyline points="18 15 12 9 6 15" />
-                            </svg>
-                        </div>
-                    </button>
+                    </div>
                     <div class="accordion-panel open" id="panel-platform">
                         <div class="platform-grid">
+                            <div class="platform-indicator" id="platform-indicator"></div>
                             <button class="platform-btn active" id="platform-outlook" data-platform="outlook">
                                 <div class="platform-icon-wrap">
                                     <!-- Outlook Old Icon -->
@@ -144,18 +331,18 @@
                 </div>
 
                 <!-- Section 02: Upload Your Profile Image -->
-                <div class="accordion-section" id="section-profile">
-                    <button class="accordion-header" data-target="panel-profile" aria-expanded="false">
+                <div class="accordion-section open" id="section-profile">
+                    <button class="accordion-header" data-target="panel-profile" aria-expanded="true">
                         <div class="accordion-label">
                             <span class="accordion-num">02</span>
                             <span class="accordion-title-text">Upload Your Profile Image</span>
                         </div>
                         <label class="toggle-switch" onclick="event.stopPropagation();">
-                            <input type="checkbox" id="profile-toggle">
+                            <input type="checkbox" id="profile-toggle" checked>
                             <span class="toggle-slider"></span>
                         </label>
                     </button>
-                    <div class="accordion-panel" id="panel-profile">
+                    <div class="accordion-panel open" id="panel-profile">
                         <div class="upload-dropzone" id="upload-dropzone">
                             <input type="file" id="profile-upload-input"
                                 accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
